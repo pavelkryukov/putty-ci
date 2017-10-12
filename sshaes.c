@@ -44,13 +44,13 @@
 #ifdef _FORCE_AES_NI
 #   define COMPILER_SUPPORTS_AES_NI
 #elif defined(__GNUC__)
-#    if (__GNUC__ > 4) || (__GNUC__ == 4 && (__GNUC_MINOR__ >= 4))
+#    ifdef __AES__
 #       pragma GCC target("aes")
 #       pragma GCC target("sse4.1")
 #       define COMPILER_SUPPORTS_AES_NI
 #    endif
 #elif defined (_MSC_VER)
-#   if _MSC_FULL_VER >= 150030729
+#   if (defined(_M_X64) || defined(_M_IX86)) && _MSC_FULL_VER >= 150030729
 #      define COMPILER_SUPPORTS_AES_NI
 #   endif
 #endif
