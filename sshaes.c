@@ -1656,9 +1656,7 @@ static void aes_inv_key_14(AESContext * ctx)
 FUNC_ISA
 static void aes_setup_ni(AESContext * ctx, unsigned char *key, int keylen)
 {
-    __m128i *keysched, *invkeysched;
-    keysched = (__m128i*)((unsigned char*)ctx->keysched + ctx->offset);
-    invkeysched = (__m128i*)((unsigned char*)ctx->invkeysched + ctx->offset);
+    __m128i *keysched = (__m128i*)((unsigned char*)ctx->keysched + ctx->offset);
 
     ctx->encrypt = &aes_encrypt_cbc_ni;
     ctx->decrypt = &aes_decrypt_cbc_ni;
