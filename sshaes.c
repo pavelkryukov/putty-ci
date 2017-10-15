@@ -1162,21 +1162,6 @@ const struct ssh2_ciphers ssh2_aes = {
 /*
  * Determinators of CPU type
  */
-#if defined(__GNUC__) && defined(COMPILER_SUPPORTS_AES_NI)
-INLINE static void __cpuid(unsigned int* CPUInfo, int func)
-{
-    __asm__ __volatile__
-    (
-        "cpuid"
-        : "=a" (CPUInfo[0])
-        , "=b" (CPUInfo[1])
-        , "=c" (CPUInfo[2])
-        , "=d" (CPUInfo[3])
-        : "a"  (func)
-    );
-}
-#endif
-
 #if defined(__clang__) || defined(__GNUC__)
 
 #include <cpuid.h>
