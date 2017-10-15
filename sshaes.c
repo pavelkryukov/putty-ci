@@ -1126,7 +1126,7 @@ const struct ssh2_ciphers ssh2_aes = {
 #ifdef _FORCE_AES_NI
 #   define COMPILER_SUPPORTS_AES_NI
 #elif defined(__GNUC__)
-#    ifdef __AES__
+#    if ((__GNUC__ > 4) || (__GNUC__ == 4 && (__GNUC_MINOR__ >= 4))) && (defined(__x86_64__) || defined(__i386))
 #       define COMPILER_SUPPORTS_AES_NI
 #    endif
 #elif defined (_MSC_VER)
