@@ -1585,6 +1585,69 @@ static void aes_sdctr_ni(unsigned char *blk, int len, AESContext *ctx)
     _mm_storeu_si128((__m128i*)ctx->iv, iv);
 }
 
+FUNC_ISA
+static void aes_inv_key_10(AESContext * ctx)
+{
+    __m128i* keysched = (__m128i*)((unsigned char*)ctx->keysched + ctx->offset);
+    __m128i* invkeysched = (__m128i*)((unsigned char*)ctx->invkeysched + ctx->offset);
+
+    *(invkeysched + 10) = *(keysched + 0);
+    *(invkeysched + 9) = _mm_aesimc_si128(*(keysched + 1));
+    *(invkeysched + 8) = _mm_aesimc_si128(*(keysched + 2));
+    *(invkeysched + 7) = _mm_aesimc_si128(*(keysched + 3));
+    *(invkeysched + 6) = _mm_aesimc_si128(*(keysched + 4));
+    *(invkeysched + 5) = _mm_aesimc_si128(*(keysched + 5));
+    *(invkeysched + 4) = _mm_aesimc_si128(*(keysched + 6));
+    *(invkeysched + 3) = _mm_aesimc_si128(*(keysched + 7));
+    *(invkeysched + 2) = _mm_aesimc_si128(*(keysched + 8));
+    *(invkeysched + 1) = _mm_aesimc_si128(*(keysched + 9));
+    *(invkeysched + 0) = *(keysched + 10);
+}
+
+FUNC_ISA
+static void aes_inv_key_12(AESContext * ctx)
+{
+    __m128i* keysched = (__m128i*)((unsigned char*)ctx->keysched + ctx->offset);
+    __m128i* invkeysched = (__m128i*)((unsigned char*)ctx->invkeysched + ctx->offset);
+
+    *(invkeysched + 12) = *(keysched + 0);
+    *(invkeysched + 11) = _mm_aesimc_si128(*(keysched + 1));
+    *(invkeysched + 10) = _mm_aesimc_si128(*(keysched + 2));
+    *(invkeysched + 9) = _mm_aesimc_si128(*(keysched + 3));
+    *(invkeysched + 8) = _mm_aesimc_si128(*(keysched + 4));
+    *(invkeysched + 7) = _mm_aesimc_si128(*(keysched + 5));
+    *(invkeysched + 6) = _mm_aesimc_si128(*(keysched + 6));
+    *(invkeysched + 5) = _mm_aesimc_si128(*(keysched + 7));
+    *(invkeysched + 4) = _mm_aesimc_si128(*(keysched + 8));
+    *(invkeysched + 3) = _mm_aesimc_si128(*(keysched + 9));
+    *(invkeysched + 2) = _mm_aesimc_si128(*(keysched + 10));
+    *(invkeysched + 1) = _mm_aesimc_si128(*(keysched + 11));
+    *(invkeysched + 0) = *(keysched + 12);
+}
+
+FUNC_ISA
+static void aes_inv_key_14(AESContext * ctx)
+{
+    __m128i* keysched = (__m128i*)((unsigned char*)ctx->keysched + ctx->offset);
+    __m128i* invkeysched = (__m128i*)((unsigned char*)ctx->invkeysched + ctx->offset);
+
+    *(invkeysched + 14) = *(keysched + 0);
+    *(invkeysched + 13) = _mm_aesimc_si128(*(keysched + 1));
+    *(invkeysched + 12) = _mm_aesimc_si128(*(keysched + 2));
+    *(invkeysched + 11) = _mm_aesimc_si128(*(keysched + 3));
+    *(invkeysched + 10) = _mm_aesimc_si128(*(keysched + 4));
+    *(invkeysched + 9) = _mm_aesimc_si128(*(keysched + 5));
+    *(invkeysched + 8) = _mm_aesimc_si128(*(keysched + 6));
+    *(invkeysched + 7) = _mm_aesimc_si128(*(keysched + 7));
+    *(invkeysched + 6) = _mm_aesimc_si128(*(keysched + 8));
+    *(invkeysched + 5) = _mm_aesimc_si128(*(keysched + 9));
+    *(invkeysched + 4) = _mm_aesimc_si128(*(keysched + 10));
+    *(invkeysched + 3) = _mm_aesimc_si128(*(keysched + 11));
+    *(invkeysched + 2) = _mm_aesimc_si128(*(keysched + 12));
+    *(invkeysched + 1) = _mm_aesimc_si128(*(keysched + 13));
+    *(invkeysched + 0) = *(keysched + 14);
+}
+
 /*
  * Set up an AESContext. `keylen' is measured in
  * bytes; it can be either 16 (128-bit), 24 (192-bit), or 32
@@ -1622,28 +1685,18 @@ static void aes_setup_ni(AESContext * ctx, unsigned char *key, int keylen)
     /*
      * Now prepare the modified keys for the inverse cipher.
      */
-    invkeysched += ctx->Nr;
-    *invkeysched = *keysched;
-    switch (ctx->Nr)
-    {
-    case 14:
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-    case 12:
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
+    switch (ctx->Nr) {
     case 10:
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
-        *(--invkeysched) = _mm_aesimc_si128(*(++keysched));
+        aes_inv_key_10(ctx);
+        break;
+    case 12:
+        aes_inv_key_12(ctx);
+        break;
+    case 14:
+        aes_inv_key_14(ctx);
+        break;
     default:
-        *(--invkeysched) = *(++keysched);
+        assert(0);
     }
 }
 
