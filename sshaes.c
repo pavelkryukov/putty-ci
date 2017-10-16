@@ -1145,15 +1145,18 @@ const struct ssh2_ciphers ssh2_aes = {
 
 #ifdef COMPILER_SUPPORTS_AES_NI
 
-#if !defined(__clang__) && defined (__GNUC__)
+/*
+ * Set target architecture for Clang and GCC
+ */
+#if !defined(__clang__) && defined(__GNUC__)
 #    pragma GCC target("aes")
 #    pragma GCC target("sse4.1")
 #endif
 
-#if defined(__clang__)
-#   define FUNC_ISA __attribute__ ((target("sse4.1,aes")))
+#if defined(__clang__) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)))
+#    define FUNC_ISA __attribute__ ((target("sse4.1,aes")))
 #else
-#   define FUNC_ISA
+#    define FUNC_ISA
 #endif
 
 #include <wmmintrin.h>
