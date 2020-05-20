@@ -44,7 +44,7 @@ addons:
     update: true
 
 install:
-  - pip install coverage
+  - pip3 install coverage
   - if [ "$CC" == "clang" ]; then export COV="llvm-cov gcov"; else export COV="gcov"; fi
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_CPU_ARCH" == "amd64" ];
