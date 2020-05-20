@@ -86,7 +86,7 @@ script:
   - coverage run ./test/cryptsuite.py
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make pageant && ./pageant --exec ./test/agenttest.py; fi
   - if [[ -n "${DRBUILD}" ]]; then $DRBUILD/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp $DRTEST; else ./testsc || true; fi
-  - bash <(curl -s https://codecov.io/bash) -x "${COV}"
+  - bash <(curl -s https://codecov.io/bash) -x "${COV}" 
   # Check that full build is successful
   - make
   # Clean before C-macro driven tests to avoid problems with GCOV report merges
@@ -99,4 +99,4 @@ script:
   - ./treetest > /dev/null
   - ./wctest
   - ./uttest
-  - bash <(curl -s https://codecov.io/bash) -x "${COV}"
+  - bash <(curl -s https://codecov.io/bash) -x "${COV}" -X coveragepy
