@@ -46,7 +46,7 @@ addons:
 
 install:
   # https://travis-ci.community/t/permission-issue-while-building-wheels-for-various-python-packages/7822/13
-  - sudo chown -Rv $USER:$GROUP ~/.cache/pip/wheels 
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo chown -Rv $USER:$GROUP ~/.cache/pip/wheels; fi
   - pip3 install --user coverage
   - if [ "$CC" == "clang" ]; then export COV="llvm-cov gcov"; else export COV="gcov"; fi
   - |
