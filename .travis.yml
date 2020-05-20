@@ -47,7 +47,7 @@ addons:
 install:
   # https://travis-ci.community/t/permission-issue-while-building-wheels-for-various-python-packages/7822/13
   - sudo chown -Rv $USER:$GROUP ~/.cache/pip/wheels 
-  - pip3 install coverage
+  - pip3 --user install coverage
   - if [ "$CC" == "clang" ]; then export COV="llvm-cov gcov"; else export COV="gcov"; fi
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_CPU_ARCH" == "amd64" ];
@@ -89,7 +89,7 @@ script:
   - coverage run ./test/cryptsuite.py
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make pageant && ./pageant --exec ./test/agenttest.py; fi
   - if [[ -n "${DRBUILD}" ]]; then $DRBUILD/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp $DRTEST; else ./testsc || true; fi
-  - bash <(curl -s https://codecov.io/bash) -x "${COV}" 
+  - bash <(curl -s https://codecov.io/bash) -x "${COV}"
   # Check that full build is successful
   - make
   # Clean before C-macro driven tests to avoid problems with GCOV report merges
