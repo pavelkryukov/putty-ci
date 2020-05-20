@@ -45,6 +45,8 @@ addons:
     update: true
 
 install:
+  # https://travis-ci.community/t/permission-issue-while-building-wheels-for-various-python-packages/7822/13
+  - sudo chown -Rv $USER:$GROUP ~/.cache/pip/wheels 
   - pip3 install coverage
   - if [ "$CC" == "clang" ]; then export COV="llvm-cov gcov"; else export COV="gcov"; fi
   - |
