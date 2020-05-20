@@ -44,6 +44,7 @@ addons:
     update: true
 
 install:
+  - pip install coverage
   - if [ "$CC" == "clang" ]; then export COV="llvm-cov gcov"; else export COV="gcov"; fi
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_CPU_ARCH" == "amd64" ];
@@ -82,7 +83,7 @@ before_script:
 script:
   - make testcrypt cgtest testsc
   - ./cgtest
-  - python3 ./test/cryptsuite.py
+  - coverage run ./test/cryptsuite.py
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make pageant && ./pageant --exec ./test/agenttest.py; fi
   - if [[ -n "${DRBUILD}" ]]; then $DRBUILD/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp $DRTEST; else ./testsc || true; fi
   - bash <(curl -s https://codecov.io/bash) -x "${COV}"
