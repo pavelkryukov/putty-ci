@@ -67,14 +67,6 @@ install:
     then
       export DRTEST=mp_get_nbits
     fi
-  # Use SDE for SHA NI modeling
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_CPU_ARCH" == "amd64" ];
-    then
-      wget -q ${SDE_URL}
-      tar xvf ${SDE_ARCHIVE}.tar.bz2
-      export PUTTY_TESTCRYPT='${TRAVIS_BUILD_DIR}/${SDE_ARCHIVE}/sde64 -mix -- $TRAVIS_BUILD_DIR/testcrypt'
-    fi
 
 before_script:
   - ./mkfiles.pl
