@@ -2,7 +2,7 @@ notifications:
   email: false
 
 language: c
-dist: bionic
+dist: focal
 
 branches:
   only:
