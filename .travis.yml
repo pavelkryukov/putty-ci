@@ -3,6 +3,7 @@ notifications:
 
 language: c
 dist: focal
+osx_image: xcode12
 
 branches:
   only:
