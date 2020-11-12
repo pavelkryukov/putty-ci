@@ -47,7 +47,6 @@ addons:
 
 install:
   - pip3 install --user coverage
-  - export PATH=$PATH:/Users/travis/Library/Python/3.9/bin # for OSX builds
   - if [ "$CC" == "clang" ]; then export COV="llvm-cov gcov"; else export COV="gcov"; fi
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_CPU_ARCH" == "amd64" ];
