@@ -47,18 +47,16 @@ addons:
 install:
   - pip3 install --user coverage
   - export PATH=$PATH:/Users/travis/Library/Python/3.9/bin # for OSX builds
+  - export DRBUILD=$TRAVIS_BUILD_DIR/dynamorio-build
+  - mkdir dynamorio-build
   - if [ "$CC" == "clang" ]; then export COV="llvm-cov gcov"; else export COV="gcov"; fi
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_CPU_ARCH" == "amd64" ];
     then
       git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch cronbuild-7.91.18333
-      mkdir dynamorio-build
+      export DOES_DRBUILD=yes
       pushd dynamorio-build
-      export DRBUILD=$TRAVIS_BUILD_DIR/dynamorio-build
       cmake -G Ninja ../dynamorio && ninja
-      pushd $TRAVIS_BUILD_DIR/test/sclog
-      cmake -G Ninja -DCMAKE_PREFIX_PATH=$DRBUILD/cmake . && ninja
-      popd
       popd
     fi
   # Limit tests on Clang and Debug builds
@@ -83,11 +81,17 @@ before_script:
   - pushd $TRAVIS_BUILD_DIR/doc && make man && popd
 
 script:
+  # Build sclog
+  - pushd $TRAVIS_BUILD_DIR/test/sclog && cmake -G Ninja -DCMAKE_PREFIX_PATH=$DRBUILD/cmake . && ninja && popd
+  # Build unit tests
+  - cd $TRAVIS_BUILD_DIR
   - make testcrypt cgtest testsc
+  # Run all
   - ./cgtest
   - coverage run ./test/cryptsuite.py
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make pageant && ./pageant --exec ./test/agenttest.py; fi
-  - if [[ -n "${DRBUILD}" ]]; then $DRBUILD/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp $DRTEST; else ./testsc || true; fi
+  - if [[ -n "${DOES_DRBUILD}" ]]; then $DRBUILD/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp $DRTEST; else ./testsc || true; fi
+  # Upload coverage
   - bash <(curl -s https://codecov.io/bash) -x "${COV}"
   # Check that full build is successful
   - make
