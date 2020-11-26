@@ -47,17 +47,16 @@ addons:
 install:
   - pip3 install --user coverage
   - export PATH=$PATH:/Users/travis/Library/Python/3.9/bin # for OSX builds
+  # Build DynamoRIO
   - export DRBUILD=$TRAVIS_BUILD_DIR/dynamorio-build
   - mkdir dynamorio-build
   - if [ "$CC" == "clang" ]; then export COV="llvm-cov gcov"; else export COV="gcov"; fi
+  - git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch cronbuild-7.91.18333
+  - pushd dynamorio-build && cmake -G Ninja ../dynamorio && ninja && popd
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_CPU_ARCH" == "amd64" ];
     then
-      git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch cronbuild-7.91.18333
       export DOES_DRBUILD=yes
-      pushd dynamorio-build
-      cmake -G Ninja ../dynamorio && ninja
-      popd
     fi
   # Limit tests on Clang and Debug builds
   - |
