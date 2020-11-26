@@ -71,8 +71,8 @@ install:
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_CPU_ARCH" == "amd64" ];
     then
-      wget -q ${SDE_URL}
-      tar xvf https://dl.dropboxusercontent.com/s/${SDE_HASH}/${SDE_ARCHIVE}.tar.bz2
+      wget -q https://dl.dropboxusercontent.com/s/${SDE_HASH}/${SDE_ARCHIVE}.tar.bz2
+      tar xvf ${SDE_ARCHIVE}.tar.bz2
       export PUTTY_TESTCRYPT='${TRAVIS_BUILD_DIR}/${SDE_ARCHIVE}/sde64 -mix -- $TRAVIS_BUILD_DIR/testcrypt'
     fi
 
