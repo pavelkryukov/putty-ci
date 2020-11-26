@@ -53,7 +53,7 @@ install:
   - mkdir dynamorio-build
   - if [ "$CC" == "clang" ]; then export COV="llvm-cov gcov"; else export COV="gcov"; fi
   - git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch cronbuild-7.91.18333
-  - pushd dynamorio-build && cmake -G Ninja ../dynamorio && ninja drrun && popd
+  - pushd dynamorio-build && cmake -G Ninja ../dynamorio && ninja drrun libdrsyms.so && popd
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_CPU_ARCH" == "amd64" ];
     then
