@@ -65,7 +65,7 @@ jobs:
       run: ./cgtest
     
     - name: Run Cryptsuite
-      run: coverage.py run ./test/cryptsuite.py
+      run: python3 -m coverage run ./test/cryptsuite.py
     
     - name: Run SC
       run: ./testsc
