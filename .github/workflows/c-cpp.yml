@@ -1,0 +1,59 @@
+name: Putty CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  putty:
+    name: Putty Tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        mode: [release, debug]
+        exclude:
+          - os: macos-latest
+            platform: clang
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Coverage
+      run: pip3 install --user coverage
+
+    - name: Use Release flags
+      if: matrix.mode
+      run: echo "GITHUB_CFLAGS='-O2'" >> $GITHUB_ENV
+
+    - name: Use Release flags
+      if: matrix.mode
+      run: echo "GITHUB_CFLAGS='-O0 -fprofile-arcs -ftest-coverage -g'" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: echo "CC=clang" >> $GITHUB_ENV
+  
+    - name: Generate Makefiles
+      run: ./mkfiles.pl
+    
+    - name: Autoconf
+      run: autoreconf -fi
+      
+    - name: Configure
+      run: ./configure --prefix=${{ github.workspace }} CFLAGS="$GITHUB_CFLAGS"
+    
+    - name: Make
+      run: make testcrypt cgtest testsc
+    
+    - name: Run
+      run: |
+        ./cgtest
+        coverage run ./test/cryptsuite.py
+        ./testsc
+  
+    - name: Upload Coverage
+      uses: codecov/codecov-action@v1.0.15
