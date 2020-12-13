@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install Coverage
-      run: pip3 install coverage eccref
+      run: pip3 install coverage
     
     - name: Install Autoconf to Mac OS
       if: matrix.os == 'macos-latest'
@@ -73,7 +73,8 @@ jobs:
       run: ./cgtest
     
     - name: Run Cryptsuite
-      run: python3 -m coverage run ./test/cryptsuite.py
+      working-directory: test  
+      run: python3 -m coverage run ./cryptsuite.py
     
     - name: Dry run Side Channel 
       run: ./testsc || true
