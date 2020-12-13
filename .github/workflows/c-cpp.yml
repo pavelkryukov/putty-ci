@@ -24,6 +24,10 @@ jobs:
 
     - name: Install Coverage
       run: pip3 install --user coverage
+    
+    - name: Install Autoconf to Mac OS
+      if: matrix.os == 'macos-latest'
+      run: brew install autoconf automake libtool
 
     - name: Use Release flags
       if: matrix.mode == 'release'
