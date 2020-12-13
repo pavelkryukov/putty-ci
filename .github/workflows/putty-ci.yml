@@ -203,7 +203,7 @@ jobs:
       run: autoreconf -fi
 
     - name: Configure
-      run: ./configure --prefix=${{ github.workspace }} CFLAGS="$GITHUB_CFLAGS"
+      run: ./configure --prefix=${{ github.workspace }}
     
     - name: Make
       run: make
