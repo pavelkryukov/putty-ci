@@ -223,7 +223,7 @@ jobs:
       run: |
         ./mkfiles.pl
         autoreconf -fi
-        ./configure --prefix=${{ github.workspace }} CFLAGS="$GITHUB_FLAGS"
+        ./configure --prefix=${{ github.workspace }} CFLAGS="$GITHUB_CFLAGS"
 
     - name: Make
       run: make pageant
