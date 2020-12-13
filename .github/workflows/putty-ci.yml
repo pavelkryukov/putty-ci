@@ -46,7 +46,7 @@ jobs:
         
     - name: Upload Coverage
       uses: codecov/codecov-action@v1.0.15
-
+  
   cryptography:
     name: Cryptography
     strategy:
@@ -71,10 +71,6 @@ jobs:
     - name: Install Autoconf to Mac OS
       if: matrix.os == 'macos-latest'
       run: brew install autoconf automake libtool
-    
-    - name: Install GTK
-      if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install libgtk-3-dev
 
     - name: Use Release flags
       if: matrix.mode == 'release'
@@ -119,15 +115,7 @@ jobs:
     
     - name: Make
       run: make testcrypt cgtest testsc
-    
-    - name: Make Pageant
-      if: matrix.os == 'ubuntu-latest'
-      run: make pageant
-
-    - name: Run Pageant tests
-      if: matrix.os == 'ubuntu-latest'
-      run: ./pageant --exec ./test/agenttest.py
-
+ 
     - name: Test CMD Gen
       run: ./cgtest
     
@@ -137,7 +125,7 @@ jobs:
     
     - name: Dry run Side Channel 
       run: ./testsc || true
-  
+
     - name: Upload Coverage
       run: bash <(curl -s https://codecov.io/bash) -x "${COV}"
 
@@ -196,6 +184,58 @@ jobs:
 
 #    - name: Run DynamoRio
 #      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
+
+
+  pageant:
+    name: Pageant
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        mode: [release, debug]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install GTK
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install libgtk-3-dev
+  
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "COV=gcov" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "COV=llvm-cov gcov" >> $GITHUB_ENV
+  
+    - name: Use Release flags
+      if: matrix.mode == 'release'
+      run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
+
+    - name: Use Debug flags
+      if: matrix.mode == 'debug'
+      run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
+
+    - name: Generate, configure and build
+      run: |
+        ./mkfiles.pl
+        autoreconf -fi
+        ./configure --prefix=${{ github.workspace }} CFLAGS="$GITHUB_FLAGS"
+
+    - name: Make
+      if: matrix.os == 'ubuntu-latest'
+      run: make pageant
+
+    - name: Run
+      if: matrix.os == 'ubuntu-latest'
+      run: ./pageant --exec ./test/agenttest.py
+    
+    - name: Upload Coverage
+      run: bash <(curl -s https://codecov.io/bash) -x "${COV}"
 
   make_all:
     name: Make all targets
