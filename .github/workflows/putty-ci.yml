@@ -68,9 +68,9 @@ jobs:
     - name: Install SDE
       if: matrix.run == 'sde'
       run: |
-        wget -q https://dl.dropboxusercontent.com/s/${SDE_HASH}/${SDE_ARCHIVE}.tar.bz2
-        tar xvf ${SDE_ARCHIVE}.tar.bz2
-        echo "PUTTY_TESTCRYPT=${{ github.workspace }}/${SDE_ARCHIVE}/sde64 -mix -- ${{ github.workspace }}/testcrypt"
+        wget -q https://dl.dropboxusercontent.com/s/$SDE_HASH/$SDE_ARCHIVE.tar.bz2
+        tar xvf $SDE_ARCHIVE.tar.bz2
+        echo "PUTTY_TESTCRYPT=${{ github.workspace }}/$SDE_ARCHIVE/sde64 -mix -- ${{ github.workspace }}/testcrypt"
     
     - name: Make
       run: make testcrypt cgtest testsc
