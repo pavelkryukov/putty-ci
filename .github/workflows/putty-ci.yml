@@ -26,26 +26,26 @@ jobs:
       if: matrix.mode == 'release'
       run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
 
-    - name: Use Debug 
+    - name: Use Debug flags
       if: matrix.mode == 'debug'
       run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
         
-    - name: Build C-macro driven tests
+    - name: Build
       run: |
         ${{ matrix.compiler }} -std=c99 -o scctest stripctrl.c marshal.c utils.c memory.c wcwidth.c -I . -I unix -I charset $GITHUB_CFLAGS -DSTRIPCTRL_TEST
         ${{ matrix.compiler }} -std=c99 -o treetest tree234.c $GITHUB_CFLAGS -DTEST
         ${{ matrix.compiler }} -std=c99 -o wctest wildcard.c -I . -I unix -I charset $GITHUB_CFLAGS -DTESTMODE
         ${{ matrix.compiler }} -std=c99 -o uttest utils.c memory.c marshal.c -DTEST_HOST_STRFOO $GITHUB_CFLAGS
         
-    - name: Run C-macro driven tests
+    - name: Run
       run: |
         ./scctest
         ./treetest > /dev/null
         ./wctest
         ./uttest
         
-    - name: Upload Coverage for C-macro driven tests
-      uses: codecov/codecov-action@v1.0.15
+    - name: Upload Coverage
+      uses: bash <(curl -s https://codecov.io/bash) -x "${COV}"
 
   cryptography:
     name: Cryptography
@@ -80,7 +80,7 @@ jobs:
       if: matrix.mode == 'release'
       run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
 
-    - name: Use Debug 
+    - name: Use Debug flags
       if: matrix.mode == 'debug'
       run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
 
