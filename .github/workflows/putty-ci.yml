@@ -14,9 +14,12 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         compiler: [gcc, clang]
         mode: [release, debug]
+        run: [native, sde]
         exclude:
           - os: macos-latest
             compiler: clang
+          - os: macos-latest
+            run: sde
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -61,6 +64,13 @@ jobs:
 
     - name: Configure
       run: ./configure --prefix=${{ github.workspace }} CFLAGS="$GITHUB_CFLAGS"
+    
+    - name: Install SDE
+      if: matrix.run == 'sde'
+      run: |
+        wget -q https://dl.dropboxusercontent.com/s/${SDE_HASH}/${SDE_ARCHIVE}.tar.bz2
+        tar xvf ${SDE_ARCHIVE}.tar.bz2
+        echo "PUTTY_TESTCRYPT=${{ github.workspace }}/${SDE_ARCHIVE}/sde64 -mix -- ${{ github.workspace }}/testcrypt"
     
     - name: Make
       run: make testcrypt cgtest testsc
