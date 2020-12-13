@@ -53,11 +53,22 @@ jobs:
     - name: Make
       run: make testcrypt cgtest testsc
     
-    - name: Run
-      run: |
-        ./cgtest
-        coverage run ./test/cryptsuite.py
-        ./testsc
+    - name: Make Pageant
+      if: matrix.os == 'ubuntu-latest'
+      run: make pageant
+
+    - name: Run Pageant
+      if: matrix.os == 'ubuntu-latest'
+      run: ./pageant --exec ./test/agenttest.py
+
+    - name: Run CG test
+      run: ./cgtest
+    
+    - name: Run Cryptsuite
+      run: coverage.py run ./test/cryptsuite.py
+    
+    - name: Run SC
+      run: ./testsc
   
     - name: Upload Coverage
       uses: codecov/codecov-action@v1.0.15
