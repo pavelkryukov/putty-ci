@@ -178,11 +178,11 @@ jobs:
           
     - name: Install Autoconf to Mac OS
       if: matrix.os == 'macos-latest'
-      run: brew install autoconf automake libtool
+      run: brew install autoconf automake libtool halibut
     
     - name: Install GTK
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install libgtk-3-dev
+      run: sudo apt-get install libgtk-3-dev halibut
 
     - name: Use GCC
       if: matrix.compiler == 'gcc'
@@ -191,6 +191,10 @@ jobs:
     - name: Use Clang
       if: matrix.compiler == 'clang'
       run: echo "CC=clang" >> $GITHUB_ENV
+    
+    - name: Build docs
+      working-directory: doc
+      run: make man
   
     - name: Generate Makefiles
       run: ./mkfiles.pl
