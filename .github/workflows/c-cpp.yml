@@ -155,5 +155,5 @@ jobs:
         ./configure --prefix=${{ github.workspace }} CFLAGS="-O2"
         make testsc
 
-    - name: Run DynamoRio
-      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
+#    - name: Run DynamoRio
+#      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
