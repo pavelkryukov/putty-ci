@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install Coverage
-      run: pip3 install coverage
+      run: pip3 install coverage eccref
     
     - name: Install Autoconf to Mac OS
       if: matrix.os == 'macos-latest'
