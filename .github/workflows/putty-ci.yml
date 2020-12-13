@@ -115,11 +115,11 @@ jobs:
 
     - name: Change mode for SDE
       if: matrix.run == 'sde'
-      run: chmod +x $SDE_PATH/sde64
+      run: chmod +x $SDE_PATH/sde
 
     - name: Set SDE path
       if: matrix.run == 'sde'
-      run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde64 -mix -- ${{ github.workspace }}/testcrypt" >> $GITHUB_ENV
+      run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde -mix -- ${{ github.workspace }}/testcrypt" >> $GITHUB_ENV
     
     - name: Make
       run: make testcrypt cgtest testsc
