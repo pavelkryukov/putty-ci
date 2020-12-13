@@ -31,11 +31,11 @@ jobs:
 
     - name: Use Release flags
       if: matrix.mode == 'release'
-      run: echo "GITHUB_CFLAGS='-O2'" >> $GITHUB_ENV
+      run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
 
     - name: Use Debug 
       if: matrix.mode == 'debug'
-      run: echo "GITHUB_CFLAGS='-O0 -fprofile-arcs -ftest-coverage -g'" >> $GITHUB_ENV
+      run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
 
     - name: Use Clang
       if: matrix.compiler == 'clang'
