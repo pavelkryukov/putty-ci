@@ -115,7 +115,7 @@ jobs:
         
     - name: Set SDE path
       if: matrix.run == 'sde'
-      run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde64 -mix -- ${{ github.workspace }}/testcrypt"
+      run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde64 -mix -- ${{ github.workspace }}/testcrypt" >> $GITHUB_ENV
     
     - name: Make
       run: make testcrypt cgtest testsc
