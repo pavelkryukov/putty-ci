@@ -174,6 +174,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     
     steps:
+    - uses: actions/checkout@v2
+          
     - name: Install Autoconf to Mac OS
       if: matrix.os == 'macos-latest'
       run: brew install autoconf automake libtool
