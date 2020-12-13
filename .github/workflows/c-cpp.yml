@@ -40,6 +40,9 @@ jobs:
     - name: Generate Makefiles
       run: ./mkfiles.pl
     
+    - name: Reconfigure
+      run: autoreconf -fi
+
     - name: Configure
       run: ./configure --prefix=${{ github.workspace }} CFLAGS="$GITHUB_CFLAGS"
     
