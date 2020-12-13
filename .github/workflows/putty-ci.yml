@@ -61,13 +61,13 @@ jobs:
     - name: Make
       run: make testcrypt cgtest testsc
     
-#    - name: Make Pageant
-#      if: matrix.os == 'ubuntu-latest'
-#      run: make pageant
+    - name: Make Pageant
+      if: matrix.os == 'ubuntu-latest'
+      run: make pageant
 
-#    - name: Run Pageant
-#      if: matrix.os == 'ubuntu-latest'
-#      run: ./pageant --exec ./test/agenttest.py
+    - name: Run Pageant
+      if: matrix.os == 'ubuntu-latest'
+      run: ./pageant --exec ./test/agenttest.py
 
     - name: Test CMD Gen
       run: ./cgtest
