@@ -112,7 +112,11 @@ jobs:
         environmentVariableName: SDE_PATH
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-        
+
+    - name: Change mode for SDE
+      if: matrix.run == 'sde'
+      run: chmod +x $SDE_PATH/sde64
+
     - name: Set SDE path
       if: matrix.run == 'sde'
       run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde64 -mix -- ${{ github.workspace }}/testcrypt" >> $GITHUB_ENV
