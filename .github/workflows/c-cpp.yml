@@ -140,7 +140,7 @@ jobs:
   
     - name: Build DynamoRio
       working-directory: dynamorio-build
-      run: ninja drrun libdrreg.so libdrsyms.so
+      run: ninja drrun libdrreg.so libdrsyms.so libdrutil.so
     
     - name: Build SC plugin
       working-directory: test/sclog
