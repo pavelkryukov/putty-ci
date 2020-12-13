@@ -61,14 +61,34 @@ jobs:
 #      if: matrix.os == 'ubuntu-latest'
 #      run: ./pageant --exec ./test/agenttest.py
 
-    - name: Run CG test
+    - name: Test CMD Gen
       run: ./cgtest
     
     - name: Run Cryptsuite
       run: python3 -m coverage run ./test/cryptsuite.py
     
-    - name: Run SC
-      run: ./testsc
+    - name: Dry run Side Channel 
+      run: ./testsc || true
   
     - name: Upload Coverage
+      uses: codecov/codecov-action@v1.0.15
+    
+    - name: Clean before C-macro driven tests
+      run: git clean -xfd
+    
+    - name: Build C-macro driven tests
+      run: |
+        $CC -std=c99 -o scctest stripctrl.c marshal.c utils.c memory.c wcwidth.c -I . -I unix -I charset $GITHUB_CFLAGS -DSTRIPCTRL_TEST
+        $CC -std=c99 -o treetest tree234.c $GITHUB_CFLAGS -DTEST
+        $CC -std=c99 -o wctest wildcard.c -I . -I unix -I charset $GITHUB_CFLAGS -DTESTMODE
+        $CC -std=c99 -o uttest utils.c memory.c marshal.c -DTEST_HOST_STRFOO $GITHUB_CFLAGS
+        
+    - name: Run C-macro driven tests
+      run: |
+        ./scctest
+        ./treetest > /dev/null
+        ./wctest
+        ./uttest
+        
+    - name: Upload Coverage for C-macro driven tests
       uses: codecov/codecov-action@v1.0.15
