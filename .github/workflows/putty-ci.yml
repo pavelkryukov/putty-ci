@@ -67,10 +67,13 @@ jobs:
     
     - name: Install SDE
       if: matrix.run == 'sde'
-      run: |
-        wget -q https://dl.dropboxusercontent.com/s/$SDE_HASH/$SDE_ARCHIVE.tar.bz2
-        tar xvf $SDE_ARCHIVE.tar.bz2
-        echo "PUTTY_TESTCRYPT=${{ github.workspace }}/$SDE_ARCHIVE/sde64 -mix -- ${{ github.workspace }}/testcrypt"
+      uses: petarpetrovt/setup-sde@v0.8
+      with:
+        environmentVariableName: SDE_PATH
+        
+    - name: Set SDE path
+      if: matrix.run == 'sde'
+      run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde64 -mix -- ${{ github.workspace }}/testcrypt"
     
     - name: Make
       run: make testcrypt cgtest testsc
