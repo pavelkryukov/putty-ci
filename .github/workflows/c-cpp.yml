@@ -16,7 +16,7 @@ jobs:
         mode: [release, debug]
         exclude:
           - os: macos-latest
-            platform: clang
+            compiler: clang
     runs-on: ${{ matrix.os }}
 
     steps:
