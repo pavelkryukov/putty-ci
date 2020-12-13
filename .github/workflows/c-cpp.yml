@@ -132,7 +132,7 @@ jobs:
       run: mkdir dynamorio-build
       
     - name: Clone DynamoRio
-      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch cronbuild-7.91.18333
+      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 # --branch cronbuild-7.91.18333
   
     - name: Configure DynamoRio
       working-directory: dynamorio-build
