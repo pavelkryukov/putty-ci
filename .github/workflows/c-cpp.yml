@@ -37,9 +37,17 @@ jobs:
       if: matrix.mode == 'debug'
       run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
 
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "COV=gcov" >> $GITHUB_ENV
+
     - name: Use Clang
       if: matrix.compiler == 'clang'
-      run: echo "CC=clang" >> $GITHUB_ENV
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "COV=llvm-cov gov" >> $GITHUB_ENV
   
     - name: Generate Makefiles
       run: ./mkfiles.pl
@@ -71,7 +79,7 @@ jobs:
       run: ./testsc || true
   
     - name: Upload Coverage
-      uses: codecov/codecov-action@v1.0.15
+      run: bash <(curl -s https://codecov.io/bash) -x "${COV}"
     
     - name: Clean before C-macro driven tests
       run: git clean -xfd
