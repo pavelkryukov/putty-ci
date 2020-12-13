@@ -1,0 +1,159 @@
+name: Putty CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  putty:
+    name: Putty Tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        mode: [release, debug]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Coverage
+      run: pip3 install coverage
+    
+    - name: Install Autoconf to Mac OS
+      if: matrix.os == 'macos-latest'
+      run: brew install autoconf automake libtool
+
+    - name: Use Release flags
+      if: matrix.mode == 'release'
+      run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
+
+    - name: Use Debug 
+      if: matrix.mode == 'debug'
+      run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "COV=gcov" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "COV=llvm-cov gcov" >> $GITHUB_ENV
+  
+    - name: Generate Makefiles
+      run: ./mkfiles.pl
+    
+    - name: Reconfigure
+      run: autoreconf -fi
+
+    - name: Configure
+      run: ./configure --prefix=${{ github.workspace }} CFLAGS="$GITHUB_CFLAGS"
+    
+    - name: Make
+      run: make testcrypt cgtest testsc
+    
+#    - name: Make Pageant
+#      if: matrix.os == 'ubuntu-latest'
+#      run: make pageant
+
+#    - name: Run Pageant
+#      if: matrix.os == 'ubuntu-latest'
+#      run: ./pageant --exec ./test/agenttest.py
+
+    - name: Test CMD Gen
+      run: ./cgtest
+    
+    - name: Run Cryptsuite
+      working-directory: test  
+      run: python3 -m coverage run ./cryptsuite.py
+    
+    - name: Dry run Side Channel 
+      run: ./testsc || true
+  
+    - name: Upload Coverage
+      run: bash <(curl -s https://codecov.io/bash) -x "${COV}"
+    
+    - name: Clean before C-macro driven tests
+      run: git clean -xfd
+    
+    - name: Build C-macro driven tests
+      run: |
+        $CC -std=c99 -o scctest stripctrl.c marshal.c utils.c memory.c wcwidth.c -I . -I unix -I charset $GITHUB_CFLAGS -DSTRIPCTRL_TEST
+        $CC -std=c99 -o treetest tree234.c $GITHUB_CFLAGS -DTEST
+        $CC -std=c99 -o wctest wildcard.c -I . -I unix -I charset $GITHUB_CFLAGS -DTESTMODE
+        $CC -std=c99 -o uttest utils.c memory.c marshal.c -DTEST_HOST_STRFOO $GITHUB_CFLAGS
+        
+    - name: Run C-macro driven tests
+      run: |
+        ./scctest
+        ./treetest > /dev/null
+        ./wctest
+        ./uttest
+        
+    - name: Upload Coverage for C-macro driven tests
+      uses: codecov/codecov-action@v1.0.15
+
+  sc:
+    name: Side channel attack tests
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        mode: [release]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "CXX=g++" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "CXX=clang++" >> $GITHUB_ENV
+        
+    - name: Install tools
+      run: sudo apt-get install ninja-build
+        
+    - name: Create DynamoRio build directory
+      run: mkdir dynamorio-build
+      
+    - name: Clone DynamoRio
+      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 # --branch cronbuild-7.91.18333
+  
+    - name: Configure DynamoRio
+      working-directory: dynamorio-build
+      run: cmake -G Ninja ../dynamorio
+  
+    - name: Build DynamoRio
+      working-directory: dynamorio-build
+      run: ninja drrun libdrreg.so libdrsyms.so libdrutil.so libdrwrap.so
+    
+    - name: Build SC plugin
+      working-directory: test/sclog
+      run: |
+        cmake -G Ninja -DCMAKE_PREFIX_PATH=${{ github.workspace }}/dynamorio-build/cmake .
+        ninja
+  
+    - name: Generate, configure and build
+      run: |
+        ./mkfiles.pl
+        autoreconf -fi
+        ./configure --prefix=${{ github.workspace }} CFLAGS="-O2"
+        make testsc
+
+#    - name: Run DynamoRio
+#      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
