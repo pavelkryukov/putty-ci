@@ -117,13 +117,13 @@ jobs:
       if: matrix.compiler == 'gcc'
       run: |
         echo "CC=gcc" >> $GITHUB_ENV
-        echo "COV=gcov" >> $GITHUB_ENV
+        echo "CXX=g++" >> $GITHUB_ENV
 
     - name: Use Clang
       if: matrix.compiler == 'clang'
       run: |
         echo "CC=clang" >> $GITHUB_ENV
-        echo "COV=llvm-cov gcov" >> $GITHUB_ENV
+        echo "CXX=clang++" >> $GITHUB_ENV
         
     - name: Install tools
       run: sudo apt-get install ninja-build
