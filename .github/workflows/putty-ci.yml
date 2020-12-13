@@ -1,0 +1,244 @@
+name: Putty CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  data_structures:
+    name: Data structures
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        mode: [release, debug]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Release flags
+      if: matrix.mode == 'release'
+      run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
+
+    - name: Use Debug flags
+      if: matrix.mode == 'debug'
+      run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
+        
+    - name: Build
+      run: |
+        ${{ matrix.compiler }} -std=c99 -o scctest stripctrl.c marshal.c utils.c memory.c wcwidth.c -I . -I unix -I charset $GITHUB_CFLAGS -DSTRIPCTRL_TEST
+        ${{ matrix.compiler }} -std=c99 -o treetest tree234.c $GITHUB_CFLAGS -DTEST
+        ${{ matrix.compiler }} -std=c99 -o wctest wildcard.c -I . -I unix -I charset $GITHUB_CFLAGS -DTESTMODE
+        ${{ matrix.compiler }} -std=c99 -o uttest utils.c memory.c marshal.c -DTEST_HOST_STRFOO $GITHUB_CFLAGS
+        
+    - name: Run
+      run: |
+        ./scctest
+        ./treetest > /dev/null
+        ./wctest
+        ./uttest
+        
+    - name: Upload Coverage
+      uses: codecov/codecov-action@v1.0.15
+
+  cryptography:
+    name: Cryptography
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        mode: [release, debug]
+        run: [native, sde]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+          - os: macos-latest
+            run: sde
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Coverage
+      run: pip3 install coverage
+    
+    - name: Install Autoconf to Mac OS
+      if: matrix.os == 'macos-latest'
+      run: brew install autoconf automake libtool
+    
+    - name: Install GTK
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install libgtk-3-dev
+
+    - name: Use Release flags
+      if: matrix.mode == 'release'
+      run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
+
+    - name: Use Debug flags
+      if: matrix.mode == 'debug'
+      run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "COV=gcov" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "COV=llvm-cov gcov" >> $GITHUB_ENV
+  
+    - name: Generate Makefiles
+      run: ./mkfiles.pl
+    
+    - name: Reconfigure
+      run: autoreconf -fi
+
+    - name: Configure
+      run: ./configure --prefix=${{ github.workspace }} CFLAGS="$GITHUB_CFLAGS"
+    
+    - name: Install SDE
+      if: matrix.run == 'sde'
+      uses: petarpetrovt/setup-sde@v0.8
+      with:
+        environmentVariableName: SDE_PATH
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+        
+    - name: Set SDE path
+      if: matrix.run == 'sde'
+      run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde64 -mix -- ${{ github.workspace }}/testcrypt"
+    
+    - name: Make
+      run: make testcrypt cgtest testsc
+    
+    - name: Make Pageant
+      if: matrix.os == 'ubuntu-latest'
+      run: make pageant
+
+    - name: Run Pageant tests
+      if: matrix.os == 'ubuntu-latest'
+      run: ./pageant --exec ./test/agenttest.py
+
+    - name: Test CMD Gen
+      run: ./cgtest
+    
+    - name: Run Cryptsuite
+      working-directory: test  
+      run: python3 -m coverage run ./cryptsuite.py
+    
+    - name: Dry run Side Channel 
+      run: ./testsc || true
+  
+    - name: Upload Coverage
+      run: bash <(curl -s https://codecov.io/bash) -x "${COV}"
+
+  side_channel:
+    name: Side channel attack tests
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        mode: [release]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "CXX=g++" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "CXX=clang++" >> $GITHUB_ENV
+        
+    - name: Install tools
+      run: sudo apt-get install ninja-build
+        
+    - name: Create DynamoRio build directory
+      run: mkdir dynamorio-build
+      
+    - name: Clone DynamoRio
+      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 # --branch cronbuild-7.91.18333
+  
+    - name: Configure DynamoRio
+      working-directory: dynamorio-build
+      run: cmake -G Ninja ../dynamorio
+  
+    - name: Build DynamoRio
+      working-directory: dynamorio-build
+      run: ninja drrun libdrreg.so libdrsyms.so libdrutil.so libdrwrap.so
+    
+    - name: Build SC plugin
+      working-directory: test/sclog
+      run: |
+        cmake -G Ninja -DCMAKE_PREFIX_PATH=${{ github.workspace }}/dynamorio-build/cmake .
+        ninja
+  
+    - name: Generate, configure and build
+      run: |
+        ./mkfiles.pl
+        autoreconf -fi
+        ./configure --prefix=${{ github.workspace }} CFLAGS="-O2"
+        make testsc
+
+#    - name: Run DynamoRio
+#      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
+
+  make_all:
+    name: Make all targets
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v2
+          
+    - name: Install Autoconf to Mac OS
+      if: matrix.os == 'macos-latest'
+      run: brew install autoconf automake libtool halibut
+    
+    - name: Install GTK
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install libgtk-3-dev halibut
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: echo "CC=gcc" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: echo "CC=clang" >> $GITHUB_ENV
+    
+    - name: Build docs
+      working-directory: doc
+      run: make man
+  
+    - name: Generate Makefiles
+      run: ./mkfiles.pl
+    
+    - name: Reconfigure
+      run: autoreconf -fi
+
+    - name: Configure
+      run: ./configure --prefix=${{ github.workspace }}
+    
+    - name: Make
+      run: make
