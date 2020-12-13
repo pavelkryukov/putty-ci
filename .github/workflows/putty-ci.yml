@@ -45,7 +45,7 @@ jobs:
         ./uttest
         
     - name: Upload Coverage
-      uses: bash <(curl -s https://codecov.io/bash) -x "${COV}"
+      uses: codecov/codecov-action@v1.0.15
 
   cryptography:
     name: Cryptography
