@@ -47,7 +47,7 @@ jobs:
       if: matrix.compiler == 'clang'
       run: |
         echo "CC=clang" >> $GITHUB_ENV
-        echo "COV=llvm-cov gov" >> $GITHUB_ENV
+        echo "COV=llvm-cov gcov" >> $GITHUB_ENV
   
     - name: Generate Makefiles
       run: ./mkfiles.pl
@@ -101,3 +101,59 @@ jobs:
         
     - name: Upload Coverage for C-macro driven tests
       uses: codecov/codecov-action@v1.0.15
+
+  sc:
+    name: Side channel attack tests
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        mode: [release]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "COV=gcov" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "COV=llvm-cov gcov" >> $GITHUB_ENV
+        
+    - name: Install tools
+      run: sudo apt-get install ninja-build
+        
+    - name: Create DynamoRio build directory
+      run: mkdir dynamorio-build
+      
+    - name: Clone DynamoRio
+      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch cronbuild-7.91.18333
+  
+    - name: Configure DynamoRio
+      working-directory: dynamorio-build
+      run: cmake -G Ninja ../dynamorio
+  
+    - name: Build DynamoRio
+      working-directory: dynamorio-build
+      run: ninja drrun libdrreg.so libdrsyms.so
+    
+    - name: Build SC plugin
+      working-directory: test/sclog
+      run: |
+        cmake -G Ninja -DCMAKE_PREFIX_PATH=${{ github.workspace }}/dynamorio-build/cmake .
+        ninja
+  
+    - name: Generate, configure and build
+      run: |
+        ./mkfiles.pl
+        autoreconf -fi
+        ./configure --prefix=${{ github.workspace }} CFLAGS="-O2"
+        make testsc
+
+    - name: Run DynamoRio
+      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
