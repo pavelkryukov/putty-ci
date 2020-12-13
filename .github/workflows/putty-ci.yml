@@ -7,8 +7,48 @@ on:
     branches: [ master ]
 
 jobs:
-  putty:
-    name: Putty Tests
+  data_structures:
+    name: Data structures
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        mode: [release, debug]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Release flags
+      if: matrix.mode == 'release'
+      run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
+
+    - name: Use Debug 
+      if: matrix.mode == 'debug'
+      run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
+        
+    - name: Build C-macro driven tests
+      run: |
+        ${{ matrix.compiler }} -std=c99 -o scctest stripctrl.c marshal.c utils.c memory.c wcwidth.c -I . -I unix -I charset $GITHUB_CFLAGS -DSTRIPCTRL_TEST
+        ${{ matrix.compiler }} -std=c99 -o treetest tree234.c $GITHUB_CFLAGS -DTEST
+        ${{ matrix.compiler }} -std=c99 -o wctest wildcard.c -I . -I unix -I charset $GITHUB_CFLAGS -DTESTMODE
+        ${{ matrix.compiler }} -std=c99 -o uttest utils.c memory.c marshal.c -DTEST_HOST_STRFOO $GITHUB_CFLAGS
+        
+    - name: Run C-macro driven tests
+      run: |
+        ./scctest
+        ./treetest > /dev/null
+        ./wctest
+        ./uttest
+        
+    - name: Upload Coverage for C-macro driven tests
+      uses: codecov/codecov-action@v1.0.15
+
+  cryptography:
+    name: Cryptography
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -100,28 +140,8 @@ jobs:
   
     - name: Upload Coverage
       run: bash <(curl -s https://codecov.io/bash) -x "${COV}"
-    
-    - name: Clean before C-macro driven tests
-      run: git clean -xfd
-    
-    - name: Build C-macro driven tests
-      run: |
-        $CC -std=c99 -o scctest stripctrl.c marshal.c utils.c memory.c wcwidth.c -I . -I unix -I charset $GITHUB_CFLAGS -DSTRIPCTRL_TEST
-        $CC -std=c99 -o treetest tree234.c $GITHUB_CFLAGS -DTEST
-        $CC -std=c99 -o wctest wildcard.c -I . -I unix -I charset $GITHUB_CFLAGS -DTESTMODE
-        $CC -std=c99 -o uttest utils.c memory.c marshal.c -DTEST_HOST_STRFOO $GITHUB_CFLAGS
-        
-    - name: Run C-macro driven tests
-      run: |
-        ./scctest
-        ./treetest > /dev/null
-        ./wctest
-        ./uttest
-        
-    - name: Upload Coverage for C-macro driven tests
-      uses: codecov/codecov-action@v1.0.15
 
-  sc:
+  side_channel:
     name: Side channel attack tests
     strategy:
       matrix:
@@ -177,7 +197,7 @@ jobs:
 #    - name: Run DynamoRio
 #      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
 
-  make:
+  make_all:
     name: Make all targets
     strategy:
       matrix:
