@@ -28,6 +28,10 @@ jobs:
     - name: Install Autoconf to Mac OS
       if: matrix.os == 'macos-latest'
       run: brew install autoconf automake libtool
+    
+    - name: Install GTK
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install libgtk-3-dev
 
     - name: Use Release flags
       if: matrix.mode == 'release'
@@ -61,13 +65,13 @@ jobs:
     - name: Make
       run: make testcrypt cgtest testsc
     
-#    - name: Make Pageant
-#      if: matrix.os == 'ubuntu-latest'
-#      run: make pageant
+    - name: Make Pageant
+      if: matrix.os == 'ubuntu-latest'
+      run: make pageant
 
-#    - name: Run Pageant
-#      if: matrix.os == 'ubuntu-latest'
-#      run: ./pageant --exec ./test/agenttest.py
+    - name: Run Pageant tests
+      if: matrix.os == 'ubuntu-latest'
+      run: ./pageant --exec ./test/agenttest.py
 
     - name: Test CMD Gen
       run: ./cgtest
@@ -157,3 +161,49 @@ jobs:
 
 #    - name: Run DynamoRio
 #      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
+
+  make:
+    name: Make all targets
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v2
+          
+    - name: Install Autoconf to Mac OS
+      if: matrix.os == 'macos-latest'
+      run: brew install autoconf automake libtool halibut
+    
+    - name: Install GTK
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install libgtk-3-dev halibut
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: echo "CC=gcc" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: echo "CC=clang" >> $GITHUB_ENV
+    
+    - name: Build docs
+      working-directory: doc
+      run: make man
+  
+    - name: Generate Makefiles
+      run: ./mkfiles.pl
+    
+    - name: Reconfigure
+      run: autoreconf -fi
+
+    - name: Configure
+      run: ./configure --prefix=${{ github.workspace }}
+    
+    - name: Make
+      run: make
