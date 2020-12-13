@@ -26,11 +26,11 @@ jobs:
       run: pip3 install --user coverage
 
     - name: Use Release flags
-      if: matrix.mode
+      if: matrix.mode == 'release'
       run: echo "GITHUB_CFLAGS='-O2'" >> $GITHUB_ENV
 
-    - name: Use Release flags
-      if: matrix.mode
+    - name: Use Debug 
+      if: matrix.mode == 'debug'
       run: echo "GITHUB_CFLAGS='-O0 -fprofile-arcs -ftest-coverage -g'" >> $GITHUB_ENV
 
     - name: Use Clang
