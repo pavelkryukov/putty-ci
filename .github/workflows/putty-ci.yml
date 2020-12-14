@@ -107,11 +107,9 @@ jobs:
     
     - name: Install SDE
       if: matrix.run == 'sde'
-      uses: petarpetrovt/setup-sde@v0.8
+      uses: petarpetrovt/setup-sde@v0.9
       with:
         environmentVariableName: SDE_PATH
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
     - name: Change mode for SDE
       if: matrix.run == 'sde'
