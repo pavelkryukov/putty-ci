@@ -113,7 +113,7 @@ jobs:
 
     - name: Change mode for SDE
       if: matrix.run == 'sde'
-      run: chmod +x $SDE_PATH/sde
+      run: chmod +x $SDE_PATH/sde64
 
     - name: Set SDE path
       if: matrix.run == 'sde'
