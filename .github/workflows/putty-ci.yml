@@ -45,6 +45,7 @@ jobs:
         ./uttest
         
     - name: Upload Coverage
+      if: matrix.mode == 'debug'
       uses: codecov/codecov-action@v1.0.15
 
   cryptography:
@@ -141,6 +142,7 @@ jobs:
       run: ./testsc || true
   
     - name: Upload Coverage
+      if: matrix.mode == 'debug'
       run: bash <(curl -s https://codecov.io/bash) -x "${COV}"
 
   side_channel:
