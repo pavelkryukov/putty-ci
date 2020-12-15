@@ -114,9 +114,7 @@ jobs:
 
     - name: Change mode for SDE
       if: matrix.run == 'sde'
-      run: |
-        chmod +x $SDE_PATH/sde64
-        chmod +x $SDE_PATH/intel64/sde-mix-mt.so
+      run: chmod +x $SDE_PATH/sde64 $SDE_PATH/intel64/sde-mix-mt.so
 
     - name: Set SDE path
       if: matrix.run == 'sde'
