@@ -133,7 +133,7 @@ jobs:
     name: Side channel attack tests
     strategy:
       matrix:
-        compiler: [gcc] #, clang]
+        compiler: [gcc, clang]
         mode: [release]
     runs-on: ubuntu-latest
 
