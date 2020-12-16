@@ -161,7 +161,7 @@ jobs:
     - name: Clone DynamoRio
       run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch release_7.91.18342
   
-    - name: actions-setup-cmake
+    - name: Rollback CMake
       uses: jwlawson/actions-setup-cmake@v1.4
       with:
         cmake-version: 3.17.x
