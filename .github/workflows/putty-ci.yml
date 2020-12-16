@@ -184,11 +184,16 @@ jobs:
       run: |
         ./mkfiles.pl
         autoreconf -fi
-        ./configure --prefix=${{ github.workspace }} CFLAGS="-O2"
+        ./configure --prefix=${{ github.workspace }} CFLAGS="-O2 -g"
         make testsc
 
     - name: Run DynamoRio
       run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
+      continue-on-error: true
+    
+    - name: Dump diff
+      working-directory: tmp
+      run: diff mac_ssh_hmac_sha256.0000 mac_ssh_hmac_sha256.0001
 
   pageant:
     name: Pageant
