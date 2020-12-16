@@ -133,7 +133,7 @@ jobs:
     name: Side channel attack tests
     strategy:
       matrix:
-        compiler: [gcc, clang]
+        compiler: [gcc] #, clang]
         mode: [release]
     runs-on: ubuntu-latest
 
@@ -159,11 +159,16 @@ jobs:
       run: mkdir dynamorio-build
       
     - name: Clone DynamoRio
-      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 # --branch cronbuild-7.91.18333
+      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch release_7.91.18342
+  
+    - name: actions-setup-cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: 3.17.x
   
     - name: Configure DynamoRio
       working-directory: dynamorio-build
-      run: cmake -G Ninja ../dynamorio
+      run: cmake -G Ninja ../dynamorio # -DCMAKE_BUILD_TYPE=Debug
   
     - name: Build DynamoRio
       working-directory: dynamorio-build
@@ -182,9 +187,8 @@ jobs:
         ./configure --prefix=${{ github.workspace }} CFLAGS="-O2"
         make testsc
 
-#    - name: Run DynamoRio
-#      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
-
+    - name: Run DynamoRio
+      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
 
   pageant:
     name: Pageant
