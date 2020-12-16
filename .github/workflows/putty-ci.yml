@@ -188,7 +188,7 @@ jobs:
         make testsc
 
     - name: Run DynamoRio
-      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp mac_ssh_hmac_sha1_96_buggy mac_ssh_hmac_sha256
+      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp mp_get_nbits mac_ssh_hmac_sha256
 
   pageant:
     name: Pageant
