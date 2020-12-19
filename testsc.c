@@ -1355,13 +1355,13 @@ static void test_mac(const ssh2_macalg *malg)
         random_read(seqbuf, 4);
         uint32_t seq = GET_32BIT_MSB_FIRST(seqbuf);
         printf("mkey: ");
-        for (size_t j = 0; j < malg->keylen; ++i)
+        for (size_t j = 0; j < malg->keylen; ++j)
             printf("%d", mkey[j]);
         printf("\ndata: ");
-        for (size_t j = 0; j < datalen; ++i)
+        for (size_t j = 0; j < datalen; ++j)
             printf("%d", data[j]);
         printf("\nseqlen: ");
-        for (size_t j = 0; j < 4; ++i)
+        for (size_t j = 0; j < 4; ++j)
             printf("%d", seqbuf[j]);
         printf("\n");
 
