@@ -781,7 +781,8 @@ static inline void ssh_hash_final(ssh_hash *h, unsigned char *out)
 static inline void ssh_hash_digest_nondestructive(ssh_hash *h,
                                                   unsigned char *out)
 {
-    ssh_hash *h1 = ssh_hash_copy(h);
+//    ssh_hash *h1 =
+    ssh_hash_copy(h);
 //    ssh_hash_final(h1, out);
 }
 
