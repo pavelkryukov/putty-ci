@@ -780,7 +780,10 @@ static inline void ssh_hash_final(ssh_hash *h, unsigned char *out)
  * appending data to get a hash of an extended string. */
 static inline void ssh_hash_digest_nondestructive(ssh_hash *h,
                                                   unsigned char *out)
-{ ssh_hash_final(ssh_hash_copy(h), out); }
+{
+    ssh_hash *h1 = ssh_hash_copy(h);
+//    ssh_hash_final(h1, out);
+}
 
 /* Handy macros for defining all those text-name fields at once */
 #define HASHALG_NAMES_BARE(base) \
