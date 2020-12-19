@@ -773,7 +773,7 @@ static inline ssh_hash *ssh_hash_copyfrom(ssh_hash *dest, ssh_hash *src)
 
 /* ssh_hash_final emits the digest _and_ frees the ssh_hash */
 static inline void ssh_hash_final(ssh_hash *h, unsigned char *out)
-{ h->vt->digest(h, out); h->vt->free(h); }
+{ h->vt->digest(h, out); // h->vt->free(h); }
 
 /* ssh_hash_digest_nondestructive generates a finalised hash from the
  * given object without changing its state, so you can continue
@@ -781,9 +781,8 @@ static inline void ssh_hash_final(ssh_hash *h, unsigned char *out)
 static inline void ssh_hash_digest_nondestructive(ssh_hash *h,
                                                   unsigned char *out)
 {
-//    ssh_hash *h1 =
-    ssh_hash_copy(h);
-//    ssh_hash_final(h1, out);
+    ssh_hash *h1 = ssh_hash_copy(h);
+    ssh_hash_final(h1, out);
 }
 
 /* Handy macros for defining all those text-name fields at once */
