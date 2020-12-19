@@ -134,7 +134,7 @@ static void hmac_start(ssh2_mac *mac)
 static void hmac_genresult(ssh2_mac *mac, unsigned char *output)
 {
     struct hmac *ctx = container_of(mac, struct hmac, mac);
-    ssh_hash *htmp;
+    // ssh_hash *htmp;
 
     /* Leave h_live and h_outer in place, so that the SSH-2 BPP can
      * continue regenerating test results from different-length
