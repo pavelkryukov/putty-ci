@@ -133,25 +133,25 @@ static void hmac_start(ssh2_mac *mac)
 
 static void hmac_genresult(ssh2_mac *mac, unsigned char *output)
 {
-    struct hmac *ctx = container_of(mac, struct hmac, mac);
-    ssh_hash *htmp;
+    // struct hmac *ctx = container_of(mac, struct hmac, mac);
+    // ssh_hash *htmp;
 
     /* Leave h_live and h_outer in place, so that the SSH-2 BPP can
      * continue regenerating test results from different-length
      * prefixes of the packet */
-    ssh_hash_digest_nondestructive(ctx->h_live, ctx->digest);
+    // ssh_hash_digest_nondestructive(ctx->h_live, ctx->digest);
 
-    htmp = ssh_hash_copy(ctx->h_outer);
-    put_data(htmp, ctx->digest, ctx->hashalg->hlen);
-    ssh_hash_final(htmp, ctx->digest);
+    // htmp = ssh_hash_copy(ctx->h_outer);
+    // put_data(htmp, ctx->digest, ctx->hashalg->hlen);
+    // ssh_hash_final(htmp, ctx->digest);
 
     /*
      * Some instances of HMAC truncate the output hash, so instead of
      * writing it directly to 'output' we wrote it to our own
      * full-length buffer, and now we copy the required amount.
      */
-    memcpy(output, ctx->digest, mac->vt->len);
-    smemclr(ctx->digest, ctx->hashalg->hlen);
+    // memcpy(output, ctx->digest, mac->vt->len);
+    // smemclr(ctx->digest, ctx->hashalg->hlen);
 }
 
 static const char *hmac_text_name(ssh2_mac *mac)
