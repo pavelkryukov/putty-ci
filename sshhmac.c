@@ -69,7 +69,7 @@ static void hmac_free(ssh2_mac *mac)
       struct hmac *ctx = container_of(mac, struct hmac, mac);
 
       ssh_hash_free(ctx->h_outer);
-//    ssh_hash_free(ctx->h_inner);
+      ssh_hash_free(ctx->h_inner);
 //    ssh_hash_free(ctx->h_live);
 //    smemclr(ctx->digest, ctx->hashalg->hlen);
 //    sfree(ctx->digest);
