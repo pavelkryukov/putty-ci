@@ -66,17 +66,17 @@ static ssh2_mac *hmac_new(const ssh2_macalg *alg, ssh_cipher *cipher)
 
 static void hmac_free(ssh2_mac *mac)
 {
-    struct hmac *ctx = container_of(mac, struct hmac, mac);
+//    struct hmac *ctx = container_of(mac, struct hmac, mac);
 
-    ssh_hash_free(ctx->h_outer);
-    ssh_hash_free(ctx->h_inner);
-    ssh_hash_free(ctx->h_live);
-    smemclr(ctx->digest, ctx->hashalg->hlen);
-    sfree(ctx->digest);
-    strbuf_free(ctx->text_name);
+//    ssh_hash_free(ctx->h_outer);
+//    ssh_hash_free(ctx->h_inner);
+//    ssh_hash_free(ctx->h_live);
+//    smemclr(ctx->digest, ctx->hashalg->hlen);
+//    sfree(ctx->digest);
+//    strbuf_free(ctx->text_name);
 
-    smemclr(ctx, sizeof(*ctx));
-    sfree(ctx);
+//    smemclr(ctx, sizeof(*ctx));
+//    sfree(ctx);
 }
 
 #define PAD_OUTER 0x5C
