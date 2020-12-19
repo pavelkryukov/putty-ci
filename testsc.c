@@ -1354,21 +1354,11 @@ static void test_mac(const ssh2_macalg *malg)
         uint8_t seqbuf[4];
         random_read(seqbuf, 4);
         uint32_t seq = GET_32BIT_MSB_FIRST(seqbuf);
-        printf("mkey: ");
-        for (size_t j = 0; j < malg->keylen; ++j)
-            printf("%x ", mkey[j]);
-        printf("\ndata: ");
-        for (size_t j = 0; j < datalen; ++j)
-            printf("%x ", data[j]);
-        printf("\nseqlen: ");
-        for (size_t j = 0; j < 4; ++j)
-            printf("%x ", seqbuf[j]);
-        printf("\n");
 
         log_start();
         ssh2_mac_setkey(m, make_ptrlen(mkey, malg->keylen));
-        ssh2_mac_generate(m, data, datalen, seq);
-        ssh2_mac_verify(m, data, datalen, seq);
+        //ssh2_mac_generate(m, data, datalen, seq);
+        //ssh2_mac_verify(m, data, datalen, seq);
         log_end();
     }
 
