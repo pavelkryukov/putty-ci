@@ -184,7 +184,7 @@ jobs:
       run: |
         ./mkfiles.pl
         autoreconf -fi
-        ./configure --prefix=${{ github.workspace }} CFLAGS="-O2"
+        ./configure --prefix=${{ github.workspace }} CFLAGS="-O2 -g"
         make testsc
 
     - name: Run DynamoRio
