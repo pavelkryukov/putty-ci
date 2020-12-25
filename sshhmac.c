@@ -70,6 +70,7 @@ static void hmac_free(ssh2_mac *mac)
 
       ssh_hash_free(ctx->h_outer);
       ssh_hash_free(ctx->h_inner);
+      printf("%x\d", ctx->h_live);
       ssh_hash_free(ctx->h_live);
 //    smemclr(ctx->digest, ctx->hashalg->hlen);
 //    sfree(ctx->digest);
