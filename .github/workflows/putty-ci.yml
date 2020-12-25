@@ -192,7 +192,7 @@ jobs:
       continue-on-error: true
     
     - name: Diff
-      run: diff /tmp/mac_ssh_hmac_sha256.0000 /tmp/mac_ssh_hmac_sha256.0001
+      run: diff /tmp/mac_ssh_hmac_sha256.0000 /tmp/mac_ssh_hmac_sha256.0001 -C 10
 
   pageant:
     name: Pageant
