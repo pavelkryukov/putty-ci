@@ -195,7 +195,7 @@ jobs:
       continue-on-error: true
     
     - name: Diff
-      run: diff /tmp/mac_ssh_hmac_sha256.0000 /tmp/mac_ssh_hmac_sha256.0001 -C 30
+      run: diff /tmp/safe_mem_clear.0000 /tmp/safe_mem_clear.0001 -C 30
 
   pageant:
     name: Pageant
