@@ -203,13 +203,15 @@ static void test_safe_mem_clear(void)
     char *dec = snewn(256, char);
     char *x = (char*)((((size_t)dec >> 6) + 1) << 6);
     smemclr(dec, 256);
-    for (size_t i = 0; i < 64; i += 16) {
-        for (size_t j = 32; j < 256; ++j) {
+    for (size_t j = 32; j < 256; ++j) {
+        for (size_t i = 0; i < 64; i += 16) {
+            print("offset %x, memsize %x", i, j);
             log_start();
             smemclr(x + i, j);
             log_end();
         }
     }
+    sfree(dec);
 }
 
 struct test {
