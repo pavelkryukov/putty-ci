@@ -282,6 +282,7 @@ VOLATILE_WRAPPED_DEFN(static, size_t, looplimit, (size_t x))
 #define HASH_TESTLIST(X, name) X(hash_ ## name)
 
 #define TESTLIST(X)                             \
+    X(safe_mem_clear)                           \
     X(mp_get_nbits)                             \
     X(mp_from_decimal)                          \
     X(mp_from_hex)                              \
@@ -327,6 +328,17 @@ VOLATILE_WRAPPED_DEFN(static, size_t, looplimit, (size_t x))
     MACS(MAC_TESTLIST, X)                       \
     HASHES(HASH_TESTLIST, X)                    \
     /* end of list */
+
+static void test_safe_mem_clear(void)
+{
+    char dec[256];
+    char* x = (char*)((((size_t)dec >> 6) + 1) << 6);
+    for (size_t i = 0; i < 64; i++) {
+        log_start();
+        smemclr(x + i, 128);
+        log_end();
+    }
+}
 
 static void test_mp_get_nbits(void)
 {
