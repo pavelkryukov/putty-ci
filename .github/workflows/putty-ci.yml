@@ -132,6 +132,7 @@ jobs:
   side_channel:
     name: Side channel attack tests
     strategy:
+      fail-fast: false
       matrix:
         compiler: [gcc, clang]
         mode: [release]
