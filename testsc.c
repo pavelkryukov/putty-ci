@@ -242,7 +242,6 @@ int main(int argc, char **argv)
     bool doing_opts = true;
     const char *pname = argv[0];
     uint8_t tests_to_run[lenof(tests)];
-    bool keep_outfiles = false;
     bool test_names_given = false;
 
     memset(tests_to_run, 1, sizeof(tests_to_run));
@@ -336,7 +335,7 @@ int main(int argc, char **argv)
 
         if (test_index < 2) {
             printf("FAIL: test did not generate multiple output files\n");
-            goto test_done;
+            return 1;
         }
 
         for (size_t i = 0; i < test_index; i++) {
@@ -350,6 +349,8 @@ int main(int argc, char **argv)
             char bufn[4096];
             while (true) {
                 size_t rn = fread(bufn, 1, sizeof(bufn), nextfp);
+                if (rn == 0)
+                    break;
                 printf("%s\n", bufn);
             }
             fclose(nextfp);
