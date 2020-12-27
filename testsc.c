@@ -331,8 +331,8 @@ VOLATILE_WRAPPED_DEFN(static, size_t, looplimit, (size_t x))
 
 static void test_safe_mem_clear(void)
 {
-    char dec[256];
-    char* x = (char*)((((size_t)dec >> 6) + 1) << 6);
+    char *dec = snewn(256, char);
+    char *x = (char*)((((size_t)dec >> 6) + 1) << 6);
     smemclr(dec, 256);
     for (size_t i = 0; i < 64; i++) {
         log_start();
