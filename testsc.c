@@ -258,7 +258,7 @@ int main(int argc, char **argv)
                 }
                 outdir = *++argv;
             } else if (!strcmp(p, "-k") || !strcmp(p, "--keep")) {
-                keep_outfiles = true;
+
             } else if (!strcmp(p, "--")) {
                 doing_opts = false;
             } else if (!strcmp(p, "--help")) {
@@ -343,7 +343,7 @@ int main(int argc, char **argv)
             FILE *nextfp = fopen(nextfile, "rb");
             if (!nextfp) {
                 printf("ERR: %s: open: %s\n", nextfile, strerror(errno));
-                goto test_done;
+                return 1;
             }
 
             char bufn[4096];
