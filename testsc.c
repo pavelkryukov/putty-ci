@@ -195,17 +195,6 @@ VOLATILE_WRAPPED_DEFN(, intptr_t, dry_run, (void))
     return 1;
 }
 
-VOLATILE_WRAPPED_DEFN(static, size_t, looplimit, (size_t x))
-{
-    /*
-     * looplimit() is the identity function on size_t, but the
-     * compiler isn't allowed to rely on it being that. I use it to
-     * make loops in the test functions look less attractive to
-     * compilers' unrolling heuristics.
-     */
-    return x;
-}
-
 #define TESTLIST(X)                             \
     X(safe_mem_clear)                           
 
