@@ -183,8 +183,8 @@ jobs:
     - name: Generate, configure and build
       run: |
         ./mkfiles.pl
-        autoreconf -fi
-        ./configure --prefix=${{ github.workspace }} CFLAGS="-O2 -fno-builtin-memset"
+        autoreconf -fiu
+        ./configure --prefix=${{ github.workspace }} CFLAGS="-O2"
         make testsc
 
     - name: Run DynamoRio
