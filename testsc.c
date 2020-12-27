@@ -205,7 +205,7 @@ static void test_safe_mem_clear(void)
     smemclr(dec, 256);
     for (size_t j = 32; j < 256; ++j) {
         for (size_t i = 0; i < 64; i += 16) {
-            print("offset %x, memsize %x", i, j);
+            printf("offset %x, memsize %x", i, j);
             log_start();
             smemclr(x + i, j);
             log_end();
