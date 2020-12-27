@@ -183,7 +183,7 @@ jobs:
     - name: Generate, configure and build
       run: |
         ./mkfiles.pl
-        autoreconf -fiu
+        autoreconf -fi
         ./configure --prefix=${{ github.workspace }} CFLAGS="-O2"
         make testsc
 
