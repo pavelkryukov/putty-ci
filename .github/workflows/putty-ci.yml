@@ -154,7 +154,7 @@ jobs:
         echo "CXX=clang++" >> $GITHUB_ENV
         echo "LD_HWCAP_MASK=0" >> $GITHUB_ENV
         sudo touch /etc/ld.so.nohwcap
-  
+        echo "GLIBC_TUNABLES=glibc.cpu.hwcap_mask=0:glibc.cpu.x86_rep_stosb_threshold=1" >> $GITHUB_ENV
 
     - name: Check LibC version
       run: ldd --version
