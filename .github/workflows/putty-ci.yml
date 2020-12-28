@@ -152,7 +152,7 @@ jobs:
         echo "CC=clang" >> $GITHUB_ENV
         echo "CXX=clang++" >> $GITHUB_ENV
         echo "LD_HWCAP_MASK=0" >> $GITHUB_ENV
-        echo "GLIBC_TUNABLES=%GLIBC_TUNABLES:glibc.cpu.hwcap_mask=0"  >> $GITHUB_ENV
+        echo "GLIBC_TUNABLES=$GLIBC_TUNABLES:glibc.cpu.hwcap_mask=0"  >> $GITHUB_ENV
         
     - name: Install tools
       run: sudo apt-get install ninja-build
