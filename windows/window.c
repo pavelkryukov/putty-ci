@@ -310,18 +310,18 @@ static bool win_seat_is_utf8(Seat *seat)
     return is_utf8();
 }
 
-char *win_seat_get_ttymode(Seat *seat, const char *mode)
+static char *win_seat_get_ttymode(Seat *seat, const char *mode)
 {
     return term_get_ttymode(term, mode);
 }
 
-bool win_seat_get_window_pixel_size(Seat *seat, int *x, int *y)
+static bool win_seat_get_window_pixel_size(Seat *seat, int *x, int *y)
 {
     win_get_pixels(wintw, x, y);
     return true;
 }
 
-StripCtrlChars *win_seat_stripctrl_new(
+static StripCtrlChars *win_seat_stripctrl_new(
     Seat *seat, BinarySink *bs_out, SeatInteractionContext sic)
 {
     return stripctrl_new_term(bs_out, false, 0, term);
@@ -4748,8 +4748,7 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 static void wintw_set_title(TermWin *tw, const char *title)
 {
     sfree(window_name);
-    window_name = snewn(1 + strlen(title), char);
-    strcpy(window_name, title);
+    window_name = dupstr(title);
     if (conf_get_bool(conf, CONF_win_name_always) || !IsIconic(wgs.term_hwnd))
         SetWindowText(wgs.term_hwnd, title);
 }
@@ -4757,8 +4756,7 @@ static void wintw_set_title(TermWin *tw, const char *title)
 static void wintw_set_icon_title(TermWin *tw, const char *title)
 {
     sfree(icon_name);
-    icon_name = snewn(1 + strlen(title), char);
-    strcpy(icon_name, title);
+    icon_name = dupstr(title);
     if (!conf_get_bool(conf, CONF_win_name_always) && IsIconic(wgs.term_hwnd))
         SetWindowText(wgs.term_hwnd, title);
 }
