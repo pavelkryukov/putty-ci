@@ -192,7 +192,7 @@ jobs:
     - name: Run DynamoRio
       run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
  
- pageant:
+  pageant:
     name: Pageant
     strategy:
       matrix:
