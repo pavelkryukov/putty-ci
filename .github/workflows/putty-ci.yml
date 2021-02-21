@@ -50,6 +50,7 @@ jobs:
   cryptography:
     name: Cryptography
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
         compiler: [gcc, clang]
