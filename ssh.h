@@ -294,11 +294,10 @@ struct ConnectionLayerVtable {
      * channel) what its preference for line-discipline options is. */
     void (*set_ldisc_option)(ConnectionLayer *cl, int option, bool value);
 
-    /* Communicate to the connection layer whether X and agent
-     * forwarding were successfully enabled (for purposes of
-     * knowing whether to accept subsequent channel-opens). */
+    /* Communicate to the connection layer whether X forwarding was
+     * successfully enabled (for purposes of knowing whether to accept
+     * subsequent channel-opens). */
     void (*enable_x_fwd)(ConnectionLayer *cl);
-    void (*enable_agent_fwd)(ConnectionLayer *cl);
 
     /* Communicate to the connection layer whether the main session
      * channel currently wants user input. */
@@ -370,8 +369,6 @@ static inline void ssh_set_ldisc_option(ConnectionLayer *cl, int opt, bool val)
 { cl->vt->set_ldisc_option(cl, opt, val); }
 static inline void ssh_enable_x_fwd(ConnectionLayer *cl)
 { cl->vt->enable_x_fwd(cl); }
-static inline void ssh_enable_agent_fwd(ConnectionLayer *cl)
-{ cl->vt->enable_agent_fwd(cl); }
 static inline void ssh_set_wants_user_input(ConnectionLayer *cl, bool wanted)
 { cl->vt->set_wants_user_input(cl, wanted); }
 
@@ -751,6 +748,7 @@ struct ssh_hashalg {
     const char *text_basename;     /* the semantic name of the hash */
     const char *annotation;   /* extra info, e.g. which of multiple impls */
     const char *text_name;    /* both combined, e.g. "SHA-n (unaccelerated)" */
+    const void *extra;        /* private to the hash implementation */
 };
 
 static inline ssh_hash *ssh_hash_new(const ssh_hashalg *alg)
@@ -932,6 +930,18 @@ struct ssh2_userkey {
     char *comment;                     /* the key comment */
 };
 
+/* Argon2 password hashing function */
+typedef enum { Argon2d = 0, Argon2i = 1, Argon2id = 2 } Argon2Flavour;
+void argon2(Argon2Flavour, uint32_t mem, uint32_t passes,
+            uint32_t parallel, uint32_t taglen,
+            ptrlen P, ptrlen S, ptrlen K, ptrlen X, strbuf *out);
+void argon2_choose_passes(
+    Argon2Flavour, uint32_t mem, uint32_t milliseconds, uint32_t *passes,
+    uint32_t parallel, uint32_t taglen, ptrlen P, ptrlen S, ptrlen K, ptrlen X,
+    strbuf *out);
+/* The H' hash defined in Argon2, exposed just for testcrypt */
+strbuf *argon2_long_hash(unsigned length, ptrlen data);
+
 /* The maximum length of any hash algorithm. (bytes) */
 #define MAX_HASH_LEN (114) /* longest is SHAKE256 with 114-byte output */
 
@@ -978,12 +988,17 @@ extern const ssh_hashalg ssh_sha256;
 extern const ssh_hashalg ssh_sha256_hw;
 extern const ssh_hashalg ssh_sha256_sw;
 extern const ssh_hashalg ssh_sha384;
+extern const ssh_hashalg ssh_sha384_hw;
+extern const ssh_hashalg ssh_sha384_sw;
 extern const ssh_hashalg ssh_sha512;
+extern const ssh_hashalg ssh_sha512_hw;
+extern const ssh_hashalg ssh_sha512_sw;
 extern const ssh_hashalg ssh_sha3_224;
 extern const ssh_hashalg ssh_sha3_256;
 extern const ssh_hashalg ssh_sha3_384;
 extern const ssh_hashalg ssh_sha3_512;
 extern const ssh_hashalg ssh_shake256_114bytes;
+extern const ssh_hashalg ssh_blake2b;
 extern const ssh_kexes ssh_diffiehellman_group1;
 extern const ssh_kexes ssh_diffiehellman_group14;
 extern const ssh_kexes ssh_diffiehellman_gex;
@@ -1013,6 +1028,10 @@ extern const ssh2_macalg ssh_hmac_sha256;
 extern const ssh2_macalg ssh2_poly1305;
 extern const ssh_compression_alg ssh_zlib;
 
+/* Special constructor: BLAKE2b can be instantiated with any hash
+ * length up to 128 bytes */
+ssh_hash *blake2b_new_general(unsigned hashlen);
+
 /*
  * On some systems, you have to detect hardware crypto acceleration by
  * asking the local OS API rather than OS-agnostically asking the CPU
@@ -1022,6 +1041,7 @@ extern const ssh_compression_alg ssh_zlib;
 bool platform_aes_hw_available(void);
 bool platform_sha256_hw_available(void);
 bool platform_sha1_hw_available(void);
+bool platform_sha512_hw_available(void);
 
 /*
  * PuTTY version number formatted as an SSH version string.
@@ -1214,9 +1234,35 @@ int rsa1_load_s(BinarySource *src, RSAKey *key,
 int rsa1_load_f(const Filename *filename, RSAKey *key,
                 const char *passphrase, const char **errorstr);
 
-strbuf *ppk_save_sb(ssh2_userkey *key, const char *passphrase);
+typedef struct ppk_save_parameters {
+    unsigned fmt_version;              /* currently 2 or 3 */
+
+    /*
+     * Parameters for fmt_version == 3
+     */
+    Argon2Flavour argon2_flavour;
+    uint32_t argon2_mem;               /* in Kb */
+    bool argon2_passes_auto;
+    union {
+        uint32_t argon2_passes;        /* if auto == false */
+        uint32_t argon2_milliseconds;  /* if auto == true */
+    };
+    uint32_t argon2_parallelism;
+
+    /* The ability to choose a specific salt is only intended for the
+     * use of the automated test of PuTTYgen. It's a (mild) security
+     * risk to do it with any passphrase you actually care about,
+     * because it invalidates the entire point of having a salt in the
+     * first place. */
+    const uint8_t *salt;
+    size_t saltlen;
+} ppk_save_parameters;
+extern const ppk_save_parameters ppk_save_default_parameters;
+
+strbuf *ppk_save_sb(ssh2_userkey *key, const char *passphrase,
+                    const ppk_save_parameters *params);
 bool ppk_save_f(const Filename *filename, ssh2_userkey *key,
-                const char *passphrase);
+                const char *passphrase, const ppk_save_parameters *params);
 strbuf *rsa1_save_sb(RSAKey *key, const char *passphrase);
 bool rsa1_save_f(const Filename *filename, RSAKey *key,
                  const char *passphrase);
@@ -1318,8 +1364,10 @@ void des3_decrypt_pubkey_ossh(const void *key, const void *iv,
                               void *blk, int len);
 void des3_encrypt_pubkey_ossh(const void *key, const void *iv,
                               void *blk, int len);
-void aes256_encrypt_pubkey(const void *key, void *blk, int len);
-void aes256_decrypt_pubkey(const void *key, void *blk, int len);
+void aes256_encrypt_pubkey(const void *key, const void *iv,
+                           void *blk, int len);
+void aes256_decrypt_pubkey(const void *key, const void *iv,
+                           void *blk, int len);
 
 void des_encrypt_xdmauth(const void *key, void *blk, int len);
 void des_decrypt_xdmauth(const void *key, void *blk, int len);

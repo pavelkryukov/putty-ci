@@ -4,7 +4,7 @@
 
 \S{putty-manpage-name} NAME
 
-\cw{putty} - GUI SSH, Telnet, Rlogin and SUPDUP client for X
+\cw{putty} - GUI SSH, Telnet, Rlogin, and SUPDUP client for X
 
 \S{putty-manpage-synopsis} SYNOPSIS
 
@@ -13,7 +13,7 @@
 
 \S{putty-manpage-description} DESCRIPTION
 
-\cw{putty} is a graphical SSH, Telnet, Rlogin and SUPDUP client for
+\cw{putty} is a graphical SSH, Telnet, Rlogin, and SUPDUP client for
 X. It is a direct port of the Windows SSH client of the same name.
 
 \S{putty-manpage-options} OPTIONS
@@ -184,7 +184,8 @@ in verifying new files released by the PuTTY team.
 straight from the command line without having to go through the
 configuration box first.
 
-\dt \cw{\-ssh}, \cw{\-telnet}, \cw{\-rlogin}, \cw{\-raw}, \cw{\-serial}
+\dt \cw{\-ssh}, \cw{\-telnet}, \cw{\-rlogin}, \cw{\-supdup}, \cw{\-raw},
+\cw{-ssh-connection}, \cw{\-serial}
 
 \dd Select the protocol \cw{putty} will use to make the connection.
 

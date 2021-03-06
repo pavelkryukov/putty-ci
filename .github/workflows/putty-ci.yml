@@ -104,13 +104,9 @@ jobs:
     
     - name: Install SDE
       if: matrix.run == 'sde'
-      uses: petarpetrovt/setup-sde@v0.9
+      uses: petarpetrovt/setup-sde@v1
       with:
         environmentVariableName: SDE_PATH
-
-    - name: Change mode for SDE
-      if: matrix.run == 'sde'
-      run: chmod -R 755 $SDE_PATH
 
     - name: Set SDE path
       if: matrix.run == 'sde'
@@ -118,6 +114,7 @@ jobs:
     
     - name: Make
       run: make testcrypt cgtest testsc
+
 
     - name: Test CMD Gen
       run: ./cgtest

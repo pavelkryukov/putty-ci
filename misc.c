@@ -235,6 +235,27 @@ char *buildinfo(const char *newline)
      * anomalous first clause. That way the patch looks nicer when you
      * add extra ones.
      */
+#elif _MSC_VER == 1928 && _MSC_FULL_VER >= 192829500
+    /*
+     * 16.9 and 16.8 have the same _MSC_VER value, and have to be
+     * distinguished by _MSC_FULL_VER. As of 2021-03-04 that is not
+     * mentioned on the above page, but see e.g.
+     * https://developercommunity.visualstudio.com/t/the-169-cc-compiler-still-uses-the-same-version-nu/1335194#T-N1337120
+     * which says that 16.9 builds will have versions starting at
+     * 19.28.29500.* and going up. Hence, 19 28 29500 is what we
+     * compare _MSC_FULL_VER against above.
+     */
+    strbuf_catf(buf, " 2019 (16.9)");
+#elif _MSC_VER == 1928
+    strbuf_catf(buf, " 2019 (16.8)");
+#elif _MSC_VER == 1927
+    strbuf_catf(buf, " 2019 (16.7)");
+#elif _MSC_VER == 1926
+    strbuf_catf(buf, " 2019 (16.6)");
+#elif _MSC_VER == 1925
+    strbuf_catf(buf, " 2019 (16.5)");
+#elif _MSC_VER == 1924
+    strbuf_catf(buf, " 2019 (16.4)");
 #elif _MSC_VER == 1923
     strbuf_catf(buf, " 2019 (16.3)");
 #elif _MSC_VER == 1922
