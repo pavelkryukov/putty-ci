@@ -104,7 +104,7 @@ jobs:
     
     - name: Install SDE
       if: matrix.run == 'sde'
-      uses: petarpetrovt/setup-sde@v1
+      uses: petarpetrovt/setup-sde@v1.1
       with:
         environmentVariableName: SDE_PATH
 
