@@ -107,12 +107,12 @@ jobs:
       run: mkdir build
  
     - name: Run CMake in Debug
-      if: matrix.mode == debug
+      if: matrix.mode == 'debug'
       working-directory: build
       run: cmake -G Ninja .. -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
 
     - name: Run CMake in Release
-      if: matrix.mode == release
+      if: matrix.mode == 'release'
       working-directory: build
       run: cmake -G Ninja ..
 
@@ -227,12 +227,12 @@ jobs:
       run: mkdir build
 
     - name: Run CMake in Debug
-      if: matrix.mode == debug
+      if: matrix.mode == 'debug'
       working-directory: build
       run: cmake -G Ninja .. -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
 
     - name: Run CMake in Release
-      if: matrix.mode == release
+      if: matrix.mode == 'release'
       working-directory: build
       run: cmake -G Ninja ..
       
