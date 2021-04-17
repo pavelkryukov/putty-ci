@@ -2,10 +2,11 @@ extraction:
   cpp:
      configure:
         command:
-        - ./mkfiles.pl
-        - autoreconf -fi
-        - ./configure
+        - mkdir build
+        - cd build
+        - cmake -G Ninja ..
      index:
         build_command:
         - pushd ./doc && make man && popd
-        - make
+        - cd build
+        - ninja all
