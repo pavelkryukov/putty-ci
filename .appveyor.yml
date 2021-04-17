@@ -27,7 +27,7 @@ before_build:
 # Convert to lowercase
 - if "%platform%"=="X64" set platform=x64
 - if "%platform%"=="ARM" set platform=arm
-- set PUTTY_TESTCRYPT=%APPVEYOR_BUILD_FOLDER%\windows\testcrypt.exe
+- set PUTTY_TESTCRYPT=%APPVEYOR_BUILD_FOLDER%\build\testcrypt.exe
 
 build_script:
 - mkdir build
