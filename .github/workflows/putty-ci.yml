@@ -76,14 +76,6 @@ jobs:
     - name: Install Ninja on Ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt-get install ninja-build 
-  
-    - name: Use Release flags
-      if: matrix.mode == 'release'
-      run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
-
-    - name: Use Debug flags
-      if: matrix.mode == 'debug'
-      run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
 
     - name: Use GCC
       if: matrix.compiler == 'gcc'
@@ -114,10 +106,16 @@ jobs:
     - name: Create build directory
       run: mkdir build
  
-    - name: Run CMake
+    - name: Run CMake in Debug
+      if: matrix.mode == debug
       working-directory: build
-      run: CFLAGS="$GITHUB_CFLAGS" cmake -G Ninja ..
-  
+      run: cmake -G Ninja .. -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+
+    - name: Run CMake in Release
+      if: matrix.mode == release
+      working-directory: build
+      run: cmake -G Ninja ..
+
     - name: Make
       working-directory: build
       run: ninja testcrypt cgtest testsc
@@ -224,21 +222,19 @@ jobs:
       run: |
         echo "CC=clang" >> $GITHUB_ENV
         echo "COV=llvm-cov gcov" >> $GITHUB_ENV
-  
-    - name: Use Release flags
-      if: matrix.mode == 'release'
-      run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
-
-    - name: Use Debug flags
-      if: matrix.mode == 'debug'
-      run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
 
     - name: Create CMake Directory
       run: mkdir build
-      
-    - name: Run CMake
+
+    - name: Run CMake in Debug
+      if: matrix.mode == debug
       working-directory: build
-      run: CFLAGS="$GITHUB_CFLAGS" cmake .. -G Ninja
+      run: cmake -G Ninja .. -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+
+    - name: Run CMake in Release
+      if: matrix.mode == release
+      working-directory: build
+      run: cmake -G Ninja ..
       
     - name: Make
       working-directory: build
@@ -289,7 +285,7 @@ jobs:
  
     - name: Run CMake
       working-directory: build
-      run: CFLAGS="$GITHUB_CFLAGS" cmake -G Ninja ..
+      run: cmake -G Ninja ..
   
     - name: Make
       working-directory: build
