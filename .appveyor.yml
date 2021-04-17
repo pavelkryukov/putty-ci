@@ -30,11 +30,12 @@ before_build:
 - set PUTTY_TESTCRYPT=%APPVEYOR_BUILD_FOLDER%\windows\testcrypt.exe
 
 build_script:
-- perl ./mkfiles.pl
-- cd windows
-- if "%build%"=="msvc" nmake -f Makefile.vc
-- if "%build%"=="clang" mingw32-make -f Makefile.clangcl Platform="%Platform%"
-- if "%build%"=="gcc" mingw32-make -f Makefile.mgw Platform="%Platform%"
+- mkdir build
+- cd build
+- if "%build%"=="msvc" cmake -G "NMake Makefiles" ..
+- if not "%build%"=="clang" cmake -G Ninja .. -D CMAKE_C_COMPILER=%build%
+- if "%build%"=="msvc" nmake all
+- if not "%build%"=="msvc" ninja all
 
 test_script:
 - dir *.exe
