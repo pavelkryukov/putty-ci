@@ -1,0 +1,41 @@
+version: "{branch}-ci-{build}"
+image: Visual Studio 2017
+
+branches:
+  only:
+  - main
+
+platform:
+  - x86
+  - x64
+  - arm
+
+environment:
+  matrix:
+  - build: msvc
+  - build: clang
+  - build: gcc
+
+matrix:
+  exclude:
+    - build: gcc
+      platform: arm
+
+before_build:
+- if "%platform%"=="arm" (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=arm -host_arch=amd64) else (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=%platform%)
+- set PATH=%PATH%;C:\Perl;C:\Program Files\LLVM\bin;C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin;C:\msys64\mingw32\bin;C:\msys64\usr\bin
+# Convert to lowercase
+- if "%platform%"=="X64" set platform=x64
+- if "%platform%"=="ARM" set platform=arm
+- set PUTTY_TESTCRYPT=%APPVEYOR_BUILD_FOLDER%\windows\testcrypt.exe
+
+build_script:
+- perl ./mkfiles.pl
+- cd windows
+- if "%build%"=="msvc" nmake -f Makefile.vc
+- if "%build%"=="clang" mingw32-make -f Makefile.clangcl Platform="%Platform%"
+- if "%build%"=="gcc" mingw32-make -f Makefile.mgw Platform="%Platform%"
+
+test_script:
+- dir *.exe
+- if not "%platform%"=="arm" C:\Python35-x64\python ../test/cryptsuite.py
