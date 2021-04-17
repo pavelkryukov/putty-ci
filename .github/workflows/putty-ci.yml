@@ -1,0 +1,293 @@
+name: Putty CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  data_structures:
+    name: Data structures
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        mode: [release, debug]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Release flags
+      if: matrix.mode == 'release'
+      run: echo "GITHUB_CFLAGS=-O2" >> $GITHUB_ENV
+
+    - name: Use Debug flags
+      if: matrix.mode == 'debug'
+      run: echo "GITHUB_CFLAGS=-O0 -fprofile-arcs -ftest-coverage -g" >> $GITHUB_ENV
+        
+    - name: Build
+      run: |
+        ${{ matrix.compiler }} -std=c99 -o scctest stripctrl.c marshal.c utils.c memory.c wcwidth.c -I . -I unix -I charset $GITHUB_CFLAGS -DSTRIPCTRL_TEST
+        ${{ matrix.compiler }} -std=c99 -o treetest tree234.c $GITHUB_CFLAGS -DTEST
+        ${{ matrix.compiler }} -std=c99 -o wctest wildcard.c -I . -I unix -I charset $GITHUB_CFLAGS -DTESTMODE
+        ${{ matrix.compiler }} -std=c99 -o uttest utils.c memory.c marshal.c -DTEST_HOST_STRFOO $GITHUB_CFLAGS
+        
+    - name: Run
+      run: |
+        ./scctest
+        ./treetest > /dev/null
+        ./wctest
+        ./uttest
+        
+    - name: Upload Coverage
+      if: matrix.mode == 'debug'
+      uses: codecov/codecov-action@v1.0.15
+
+  cryptography:
+    name: Cryptography
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        mode: [release, debug]
+        run: [native, sde]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+          - os: macos-latest
+            run: sde
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Coverage
+      run: pip3 install coverage
+    
+    - name: Install Ninja on Mac OS
+      if: matrix.os == 'macos-latest'
+      run: brew install ninja
+    
+    - name: Install Ninja on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install ninja-build 
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "COV=gcov" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "COV=llvm-cov gcov" >> $GITHUB_ENV
+    
+    - name: Install SDE
+      if: matrix.run == 'sde'
+      uses: petarpetrovt/setup-sde@v1.1
+      with:
+        environmentVariableName: SDE_PATH
+
+    - name: Set SDE Testcrypt path
+      if: matrix.run == 'sde'
+      run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde64 -- ${{ github.workspace }}/build/testcrypt" >> $GITHUB_ENV
+
+    - name: Set native Testcrypt path
+      if: matrix.run != 'sde'
+      run: echo "PUTTY_TESTCRYPT=${{ github.workspace }}/build/testcrypt" >> $GITHUB_ENV
+
+    - name: Create build directory
+      run: mkdir build
+ 
+    - name: Run CMake in Debug
+      if: matrix.mode == 'debug'
+      working-directory: build
+      run: cmake -G Ninja .. -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+
+    - name: Run CMake in Release
+      if: matrix.mode == 'release'
+      working-directory: build
+      run: cmake -G Ninja ..
+
+    - name: Make
+      working-directory: build
+      run: ninja testcrypt cgtest testsc
+
+    - name: Test CMD Gen
+      working-directory: build
+      run: ./cgtest
+    
+    - name: Run Cryptsuite
+      working-directory: test  
+      run: python3 -m coverage run ./cryptsuite.py
+    
+    - name: Dry run Side Channel 
+      working-directory: build
+      run: ./testsc || true
+
+    - name: Upload Coverage
+      if: matrix.mode == 'debug'
+      run: bash <(curl -s https://codecov.io/bash) -x "${COV}"
+
+  side_channel:
+    name: Side channel attack tests
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        mode: [release]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "CXX=g++" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "CXX=clang++" >> $GITHUB_ENV
+        
+    - name: Install tools
+      run: sudo apt-get install ninja-build
+        
+    - name: Create build directories
+      run: mkdir dynamorio-build build
+      
+    - name: Clone DynamoRio
+      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch release_7.91.18342
+  
+    - name: Rollback CMake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: 3.17.x
+  
+    - name: Configure DynamoRio
+      working-directory: dynamorio-build
+      run: cmake -G Ninja ../dynamorio # -DCMAKE_BUILD_TYPE=Debug
+
+    - name: Configure Putty
+      working-directory: build
+      run: cmake -G Ninja .. # -DCMAKE_BUILD_TYPE=Debug
+  
+    - name: Build DynamoRio
+      working-directory: dynamorio-build
+      run: ninja drrun libdrreg.so libdrsyms.so libdrutil.so libdrwrap.so
+    
+    - name: Build SC plugin
+      working-directory: test/sclog
+      run: |
+        cmake -G Ninja -DCMAKE_PREFIX_PATH=${{ github.workspace }}/dynamorio-build/cmake .
+        ninja
+  
+    - name: Generate, configure and build
+      working-directory: build
+      run: ninja testsc
+
+    - name: Run DynamoRio
+      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./build/testsc -O /tmp mp_from_decimal mp_from_hex mp_get_decimal mp_get_hex mp_cmp_hs mp_cmp_eq mp_min mp_max mp_select_into mp_cond_swap mp_cond_clear mp_add mp_sub mp_mul mp_rshift_safe mp_divmod mp_nthroot mp_modadd mp_modsub mp_modmul mp_modpow mp_invert_mod_2to mp_invert mp_modsqrt ecc_weierstrass_add ecc_weierstrass_double ecc_weierstrass_add_general ecc_weierstrass_multiply ecc_weierstrass_is_identity ecc_weierstrass_get_affine ecc_weierstrass_decompress ecc_montgomery_diff_add ecc_montgomery_double ecc_montgomery_multiply ecc_montgomery_get_affine ecc_edwards_add ecc_edwards_multiply ecc_edwards_eq ecc_edwards_get_affine ecc_edwards_decompress cipher_ssh_3des_ssh1 cipher_ssh_3des_ssh2_ctr cipher_ssh_3des_ssh2 cipher_ssh_des cipher_ssh_des_sshcom_ssh2 cipher_ssh_aes256_sdctr cipher_ssh_aes256_sdctr_hw cipher_ssh_aes256_sdctr_sw cipher_ssh_aes256_cbc cipher_ssh_aes256_cbc_hw cipher_ssh_aes256_cbc_sw cipher_ssh_aes192_sdctr cipher_ssh_aes192_sdctr_hw cipher_ssh_aes192_sdctr_sw cipher_ssh_aes192_cbc cipher_ssh_aes192_cbc_hw cipher_ssh_aes192_cbc_sw cipher_ssh_aes128_sdctr cipher_ssh_aes128_sdctr_hw cipher_ssh_aes128_sdctr_sw cipher_ssh_aes128_cbc cipher_ssh_aes128_cbc_hw cipher_ssh_aes128_cbc_sw cipher_ssh2_chacha20_poly1305 mac_ssh_hmac_md5 mac_ssh_hmac_sha1 mac_ssh_hmac_sha1_buggy mac_ssh_hmac_sha1_96 mac_ssh_hmac_sha1_96_buggy mac_ssh_hmac_sha256 hash_ssh_md5 hash_ssh_sha1 hash_ssh_sha1_hw hash_ssh_sha1_sw hash_ssh_sha256 hash_ssh_sha256_hw hash_ssh_sha256_sw hash_ssh_sha384 hash_ssh_sha512 hash_ssh_sha3_224 hash_ssh_sha3_256 hash_ssh_sha3_384 hash_ssh_sha3_512 hash_ssh_shake256_114bytes
+
+  pageant:
+    name: Pageant
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        mode: [release, debug]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install GTK and Ninja
+      run: sudo apt-get install libgtk-3-dev ninja-build
+  
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: |
+        echo "CC=gcc" >> $GITHUB_ENV
+        echo "COV=gcov" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: |
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "COV=llvm-cov gcov" >> $GITHUB_ENV
+
+    - name: Create CMake Directory
+      run: mkdir build
+
+    - name: Run CMake in Debug
+      if: matrix.mode == 'debug'
+      working-directory: build
+      run: cmake -G Ninja .. -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+
+    - name: Run CMake in Release
+      if: matrix.mode == 'release'
+      working-directory: build
+      run: cmake -G Ninja ..
+      
+    - name: Make
+      working-directory: build
+      run: ninja pageant
+
+    - name: Run
+      run: ./build/pageant --exec ./test/agenttest.py
+    
+    - name: Upload Coverage
+      run: bash <(curl -s https://codecov.io/bash) -x "${COV}"
+
+  make_all:
+    name: Make all targets
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v2
+          
+    - name: Install Autoconf to Mac OS
+      if: matrix.os == 'macos-latest'
+      run: brew install autoconf automake libtool halibut ninja
+    
+    - name: Install GTK
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install libgtk-3-dev halibut ninja-build
+
+    - name: Use GCC
+      if: matrix.compiler == 'gcc'
+      run: echo "CC=gcc" >> $GITHUB_ENV
+
+    - name: Use Clang
+      if: matrix.compiler == 'clang'
+      run: echo "CC=clang" >> $GITHUB_ENV
+    
+    - name: Build docs
+      working-directory: doc
+      run: make man
+
+    - name: Create build directory
+      run: mkdir build
+ 
+    - name: Run CMake
+      working-directory: build
+      run: cmake -G Ninja ..
+  
+    - name: Make
+      working-directory: build
+      run: ninja all
+

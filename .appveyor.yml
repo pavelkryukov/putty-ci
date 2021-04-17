@@ -1,0 +1,38 @@
+version: "{branch}-ci-{build}"
+image: Visual Studio 2017
+
+branches:
+  only:
+  - main
+
+platform:
+  - x64
+  - arm
+
+environment:
+  matrix:
+  - build: msvc
+  - build: clang
+  - build: gcc
+
+matrix:
+  exclude:
+    - build: gcc
+      platform: arm
+
+before_build:
+- if "%platform%"=="arm" (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=arm -host_arch=amd64) else (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=%platform%)
+- set PATH=%PATH%;C:\Perl;C:\Program Files\LLVM\bin;C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin;C:\msys64\mingw32\bin;C:\msys64\usr\bin
+- set PUTTY_TESTCRYPT=%APPVEYOR_BUILD_FOLDER%\build\testcrypt.exe
+
+build_script:
+- mkdir build
+- cd build
+- if "%build%"=="msvc" cmake -G "NMake Makefiles" ..
+- if not "%build%"=="msvc" cmake -G Ninja .. -D CMAKE_C_COMPILER=%build%
+- if "%build%"=="msvc" nmake all
+- if not "%build%"=="msvc" ninja all
+
+test_script:
+- dir *.exe
+- if not "%platform%"=="arm" C:\Python35-x64\python ../test/cryptsuite.py
