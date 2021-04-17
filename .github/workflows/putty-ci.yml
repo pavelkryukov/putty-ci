@@ -103,10 +103,14 @@ jobs:
       with:
         environmentVariableName: SDE_PATH
 
-    - name: Set SDE path
+    - name: Set SDE Testcrypt path
       if: matrix.run == 'sde'
-      run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde64 -- ${{ github.workspace }}/testcrypt" >> $GITHUB_ENV
-  
+      run: echo "PUTTY_TESTCRYPT=$SDE_PATH/sde64 -- ${{ github.workspace }}/build/testcrypt" >> $GITHUB_ENV
+
+    - name: Set native Testcrypt path
+      if: matrix.run != 'sde'
+      run: echo "PUTTY_TESTCRYPT=${{ github.workspace }}/build/testcrypt" >> $GITHUB_ENV
+
     - name: Create build directory
       run: mkdir build
  
@@ -124,7 +128,7 @@ jobs:
     
     - name: Run Cryptsuite
       working-directory: test  
-      run: python3 -m coverage run ../build/cryptsuite.py
+      run: python3 -m coverage run ./cryptsuite.py
     
     - name: Dry run Side Channel 
       working-directory: build
