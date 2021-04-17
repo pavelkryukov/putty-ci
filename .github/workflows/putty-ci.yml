@@ -290,3 +290,4 @@ jobs:
     - name: Make
       working-directory: build
       run: ninja all
+
