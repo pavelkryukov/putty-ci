@@ -124,7 +124,7 @@ jobs:
     
     - name: Run Cryptsuite
       working-directory: test  
-      run: python3 -m coverage run ./build/cryptsuite.py
+      run: python3 -m coverage run ../build/cryptsuite.py
     
     - name: Dry run Side Channel 
       working-directory: build
