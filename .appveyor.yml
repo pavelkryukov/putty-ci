@@ -5,27 +5,17 @@ branches:
   only:
   - main
 
-platform:
-  - x86
-  - x64
-  - arm
-
 environment:
   matrix:
   - build: msvc
+    platform:
+    - x86
+    - x64
+    - arm
   - build: clang
+    platform: x64
   - build: gcc
-
-matrix:
-  exclude:
-    - build: gcc
-      platform: arm
-    - build: clang
-      platform: arm
-    - build: clang
-      platform: x86
-    - build: gcc
-      platform: x86
+    platform: x64
 
 before_build:
 - if "%platform%"=="arm" (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=arm -host_arch=amd64) else (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=%platform%)
