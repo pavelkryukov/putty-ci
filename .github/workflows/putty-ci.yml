@@ -34,7 +34,7 @@ jobs:
     
     - name: Install Ninja on Ubuntu
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install ninja-build 
+      run: sudo apt-get install libgtk-3-dev ninja-build 
     
     - name: Install SDE
       if: matrix.run == 'sde'
