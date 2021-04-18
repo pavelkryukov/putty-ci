@@ -29,9 +29,9 @@ build_script:
 - mkdir build
 - cd build
 - if "%build%"=="msvc" cmake -G "NMake Makefiles" ..
-- if not "%build%"=="msvc" cmake -G Ninja .. -D CMAKE_C_COMPILER=%build%
-- if "%build%"=="msvc" nmake all
-- if not "%build%"=="msvc" ninja all
+- if "%build%"=="gcc" cmake -G "MinGW Makefiles" ..
+- if "%build%"=="clang" cmake -G Ninja .. -D CMAKE_C_COMPILER=%build%
+- cmake --build .
 
 test_script:
 - dir *.exe
