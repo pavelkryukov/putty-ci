@@ -80,10 +80,6 @@ jobs:
       working-directory: test
       run: python3 -m coverage run ./cryptsuite.py
 
-    - name: Run Pageant
-      if: matrix.os == 'ubuntu-latest'
-      run: ./build/pageant --exec ./test/agenttest.py
-
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
       run: bash <(curl -s https://codecov.io/bash) -x "gcov"
