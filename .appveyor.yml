@@ -21,13 +21,15 @@ matrix:
     - build: gcc
       platform: arm
     - build: clang
+      platform: arm
+    - build: clang
       platform: x86
     - build: gcc
       platform: x86
 
 before_build:
 - if "%platform%"=="arm" (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=arm -host_arch=amd64) else (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=%platform%)
-- set PATH=%PATH%;C:\Perl;C:\Program Files\LLVM\bin;C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin;C:\msys64\mingw32\bin;C:\msys64\usr\bin
+- set PATH=%PATH%;C:\Perl;C:\Program Files\LLVM\bin;C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin
 - set PUTTY_TESTCRYPT=%APPVEYOR_BUILD_FOLDER%\build\testcrypt.exe
 
 build_script:
