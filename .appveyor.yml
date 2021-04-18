@@ -15,8 +15,8 @@ environment:
     platform: arm
   - build: clang
     platform: x64
-  - build: gcc
-    platform: x64
+#  - build: gcc
+#    platform: x64
 
 before_build:
 - if "%platform%"=="arm" (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=arm -host_arch=amd64) else (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=%platform%)
