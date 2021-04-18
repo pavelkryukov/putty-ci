@@ -33,7 +33,7 @@ jobs:
 
     - name: Install Ninja on Ubuntu
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install ninja-build 
+      run: sudo apt-get install ninja-build llvm-9 
 
     - name: Create build directory
       run: mkdir build
@@ -71,7 +71,7 @@ jobs:
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
 
   sde:
     name: Unit Tests with SDE
@@ -90,7 +90,7 @@ jobs:
       run: pip3 install coverage
 
     - name: Install Ninja on Ubuntu
-      run: sudo apt-get install ninja-build 
+      run: sudo apt-get install llvm-9 ninja-build
     
     - name: Install SDE
       uses: petarpetrovt/setup-sde@v1.1
@@ -124,7 +124,7 @@ jobs:
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
 
   side-channel:
     name: Side channel attack tests
@@ -203,7 +203,7 @@ jobs:
       run: pip3 install coverage
     
     - name: Install Ninja on Ubuntu
-      run: sudo apt-get install libgtk-3-dev ninja-build 
+      run: sudo apt-get install llvm-9 libgtk-3-dev ninja-build 
 
     - name: Create build directory
       run: mkdir build
@@ -231,7 +231,7 @@ jobs:
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
 
   make-all:
     name: Make all targets
