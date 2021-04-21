@@ -81,7 +81,7 @@ jobs:
         mode: [release, debug]
     runs-on: ubuntu-latest
     env:
-      PUTTY_TESTCRYPT: $SDE_PATH/sde64 -- ${{ github.workspace }}/build/testcrypt
+      PUTTY_TESTCRYPT: $SDE_PATH/sde6 -- ${{ github.workspace }}/build/testcrypt
 
     steps:
     - uses: actions/checkout@v2
