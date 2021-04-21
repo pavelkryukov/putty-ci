@@ -67,11 +67,11 @@ jobs:
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
-      run: bash <(curl -s https://codecov.io/bash) -x "gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "gcov" -X gcovout
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -X gcovout
 
   sde:
     name: Unit Tests with SDE
@@ -120,11 +120,11 @@ jobs:
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
-      run: bash <(curl -s https://codecov.io/bash) -x "gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "gcov" -X gcovout
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -X gcovout
 
   side-channel:
     name: Side channel attack tests
@@ -227,11 +227,11 @@ jobs:
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
-      run: bash <(curl -s https://codecov.io/bash) -x "gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "gcov" -X gcovout
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -X gcovout
 
   make-all:
     name: Make all targets
