@@ -50,7 +50,7 @@ jobs:
 
     - name: Make
       working-directory: build
-      run: ninja testcrypt cgtest testsc test_host_strfoo test_tree234 test_wildcard
+      run: ninja -v testcrypt cgtest testsc test_host_strfoo test_tree234 test_wildcard
 
     - name: Run unit tests
       working-directory: build
