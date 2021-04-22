@@ -127,7 +127,7 @@ jobs:
     name: Cryptography tests with SDE
     strategy:
       matrix:
-        compmiler: [gcc, clang]
+        compiler: [gcc, clang]
         mode: [release, debug]
     runs-on: ubuntu-latest
     env:
