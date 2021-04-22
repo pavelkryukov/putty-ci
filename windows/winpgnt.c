@@ -97,6 +97,7 @@ static bool has_security;
 
 struct PassphraseProcStruct {
     bool modal;
+    const char *help_topic;
     PageantClientDialogId *dlgid;
     char *passphrase;
     const char *comment;
@@ -269,6 +270,10 @@ static INT_PTR CALLBACK PassphraseProc(HWND hwnd, UINT msg,
           case IDCANCEL:
             end_passphrase_dialog(hwnd, 0);
             return 0;
+          case IDHELP:
+            if (p->help_topic)
+                launch_help(hwnd, p->help_topic);
+            return 0;
           case IDC_PASSPHRASE_EDITBOX:
             if ((HIWORD(wParam) == EN_CHANGE) && p->passphrase) {
                 burnstr(p->passphrase);
@@ -366,7 +371,7 @@ static void keylist_update_callback(
         ptrlen algname = get_string(src);
         const ssh_keyalg *alg = find_pubkey_alg_len(algname);
 
-        bool include_bit_count = (alg == &ssh_dss && alg == &ssh_rsa);
+        bool include_bit_count = (alg == &ssh_dsa && alg == &ssh_rsa);
 
         int wordnumber = 0;
         for (const char *p = fingerprint; *p; p++) {
@@ -451,6 +456,7 @@ static void win_add_keyfile(Filename *filename, bool encrypted)
         INT_PTR dlgret;
         struct PassphraseProcStruct pps;
         pps.modal = true;
+        pps.help_topic = NULL;         /* this dialog has no help button */
         pps.dlgid = NULL;
         pps.passphrase = NULL;
         pps.comment = err;
@@ -898,6 +904,7 @@ static bool ask_passphrase_common(PageantClientDialogId *dlgid,
 
     struct PassphraseProcStruct *pps = snew(struct PassphraseProcStruct);
     pps->modal = false;
+    pps->help_topic = WINHELP_CTX_pageant_deferred;
     pps->dlgid = dlgid;
     pps->passphrase = NULL;
     pps->comment = comment;

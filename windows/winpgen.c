@@ -310,6 +310,11 @@ static INT_PTR CALLBACK PPKParamsProc(HWND hwnd, UINT msg,
         SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0,
                      SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 
+        if (has_help())
+            SetWindowLongPtr(hwnd, GWL_EXSTYLE,
+                             GetWindowLongPtr(hwnd, GWL_EXSTYLE) |
+                             WS_EX_CONTEXTHELP);
+
         /*
          * Centre the window.
          */
@@ -407,6 +412,36 @@ static INT_PTR CALLBACK PPKParamsProc(HWND hwnd, UINT msg,
             return 0;
         }
         return 0;
+      case WM_HELP: {
+        int id = ((LPHELPINFO)lParam)->iCtrlId;
+        const char *topic = NULL;
+        switch (id) {
+          case IDC_PPKVER_STATIC:
+          case IDC_PPKVER_2:
+          case IDC_PPKVER_3:
+            topic = WINHELP_CTX_puttygen_ppkver; break;
+          case IDC_KDF_STATIC:
+          case IDC_KDF_ARGON2ID:
+          case IDC_KDF_ARGON2I:
+          case IDC_KDF_ARGON2D:
+          case IDC_ARGON2_MEM_STATIC:
+          case IDC_ARGON2_MEM:
+          case IDC_ARGON2_MEM_STATIC2:
+          case IDC_ARGON2_TIME_STATIC:
+          case IDC_ARGON2_TIME:
+          case IDC_PPK_AUTO_YES:
+          case IDC_PPK_AUTO_NO:
+          case IDC_ARGON2_PARALLEL_STATIC:
+          case IDC_ARGON2_PARALLEL:
+            topic = WINHELP_CTX_puttygen_kdfparam; break;
+        }
+        if (topic) {
+          launch_help(hwnd, topic);
+        } else {
+          MessageBeep(0);
+        }
+        break;
+      }
       case WM_CLOSE:
         EndDialog(hwnd, 0);
         return 0;
@@ -558,7 +593,7 @@ struct rsa_key_thread_params {
     bool rsa_strong;
     union {
         RSAKey *key;
-        struct dss_key *dsskey;
+        struct dsa_key *dsakey;
         struct ecdsa_key *eckey;
         struct eddsa_key *edkey;
     };
@@ -575,7 +610,7 @@ static DWORD WINAPI generate_key_thread(void *param)
     PrimeGenerationContext *pgc = primegen_new_context(params->primepolicy);
 
     if (params->keytype == DSA)
-        dsa_generate(params->dsskey, params->key_bits, pgc, &prog.rec);
+        dsa_generate(params->dsakey, params->key_bits, pgc, &prog.rec);
     else if (params->keytype == ECDSA)
         ecdsa_generate(params->eckey, params->curve_bits);
     else if (params->keytype == EDDSA)
@@ -610,7 +645,7 @@ struct MainDlgState {
     unsigned *entropy;
     union {
         RSAKey key;
-        struct dss_key dsskey;
+        struct dsa_key dsakey;
         struct ecdsa_key eckey;
         struct eddsa_key edkey;
     };
@@ -1123,7 +1158,7 @@ static void start_generating_key(HWND hwnd, struct MainDlgState *state)
     params->primepolicy = state->primepolicy;
     params->rsa_strong = state->rsa_strong;
     params->key = &state->key;
-    params->dsskey = &state->dsskey;
+    params->dsakey = &state->dsakey;
 
     if (!CreateThread(NULL, 0, generate_key_thread,
                       params, 0, &threadid)) {
@@ -1793,7 +1828,7 @@ static INT_PTR CALLBACK MainDlgProc(HWND hwnd, UINT msg,
         SendDlgItemMessage(hwnd, IDC_PROGRESS, PBM_SETPOS, PROGRESSRANGE, 0);
         if (state->ssh2) {
             if (state->keytype == DSA) {
-                state->ssh2key.key = &state->dsskey.sshk;
+                state->ssh2key.key = &state->dsakey.sshk;
             } else if (state->keytype == ECDSA) {
                 state->ssh2key.key = &state->eckey.sshk;
             } else if (state->keytype == EDDSA) {

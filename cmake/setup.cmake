@@ -55,7 +55,7 @@ add_custom_target(cmake_commit_c
   DEPENDS check_git_commit ${INTERMEDIATE_COMMIT_C}
   COMMENT "Updating cmake_commit.c")
 
-function(add_platform_sources_to_library target)
+function(add_sources_from_current_dir target)
   set(sources ${ARGN})
   list(TRANSFORM sources PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
   target_sources(${target} PRIVATE ${sources})
@@ -79,5 +79,6 @@ if(PUTTY_FUZZING)
   add_compile_definitions(FUZZING)
 endif()
 if(PUTTY_COVERAGE)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage -g ")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -g ")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()

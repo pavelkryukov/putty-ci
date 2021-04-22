@@ -5,10 +5,6 @@
 #ifndef PUTTY_UNIX_PLATFORM_H
 #define PUTTY_UNIX_PLATFORM_H
 
-#if HAVE_CMAKE_H
-#include "cmake.h"
-#endif
-
 #include <stdio.h>                     /* for FILENAME_MAX */
 #include <stdint.h>                    /* C99 int types */
 #ifndef NO_LIBDL
@@ -71,7 +67,7 @@ struct FontSpec *fontspec_new(const char *name);
 
 extern const struct BackendVtable pty_backend;
 
-#define BROKEN_PIPE_ERROR_CODE EPIPE   /* used in sshshare.c */
+#define BROKEN_PIPE_ERROR_CODE EPIPE   /* used in ssh/sharing.c */
 
 /*
  * Under GTK, we send MA_CLICK _and_ MA_2CLK, or MA_CLICK _and_

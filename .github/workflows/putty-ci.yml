@@ -23,9 +23,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Install Coverage
-      run: pip3 install coverage
     
     - name: Install Ninja on Mac OS
       if: matrix.os == 'macos-latest'
@@ -33,7 +30,7 @@ jobs:
 
     - name: Install Ninja on Ubuntu
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install ninja-build 
+      run: sudo apt-get install ninja-build llvm-9 
 
     - name: Create build directory
       run: mkdir build
@@ -50,7 +47,7 @@ jobs:
 
     - name: Make
       working-directory: build
-      run: ninja testcrypt cgtest testsc test_host_strfoo test_tree234 test_wildcard
+      run: ninja cgtest testsc test_host_strfoo test_tree234 test_wildcard
 
     - name: Run unit tests
       working-directory: build
@@ -60,6 +57,59 @@ jobs:
         ./test_host_strfoo
         ./test_tree234
         ./test_wildcard
+
+    - name: Upload GNU coverage
+      if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
+      run: bash <(curl -s https://codecov.io/bash) -x "gcov"
+      
+    - name: Upload LLVM coverage
+      if: matrix.mode == 'debug' && matrix.compiler == 'clang'
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
+ 
+  cryptography:
+    name: Cryptography Tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        mode: [release, debug]
+        exclude:
+          - os: macos-latest
+            compiler: clang
+    runs-on: ${{ matrix.os }}
+    env:
+      PUTTY_TESTCRYPT: ${{ github.workspace }}/build/testcrypt
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Coverage
+      run: pip3 install coverage
+    
+    - name: Install Ninja on Mac OS
+      if: matrix.os == 'macos-latest'
+      run: brew install ninja
+
+    - name: Install Ninja on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install ninja-build llvm-9 
+
+    - name: Create build directory
+      run: mkdir build
+ 
+    - name: Run CMake in Debug
+      if: matrix.mode == 'debug'
+      working-directory: build
+      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+
+    - name: Run CMake in Release
+      if: matrix.mode == 'release'
+      working-directory: build
+      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+
+    - name: Make
+      working-directory: build
+      run: ninja testcrypt
     
     - name: Run Cryptsuite
       working-directory: test
@@ -71,10 +121,10 @@ jobs:
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
 
   sde:
-    name: Unit Tests with SDE
+    name: Cryptography tests with SDE
     strategy:
       matrix:
         compiler: [gcc, clang]
@@ -90,7 +140,7 @@ jobs:
       run: pip3 install coverage
 
     - name: Install Ninja on Ubuntu
-      run: sudo apt-get install ninja-build 
+      run: sudo apt-get install llvm-9 ninja-build
     
     - name: Install SDE
       uses: petarpetrovt/setup-sde@v1.1
@@ -124,7 +174,7 @@ jobs:
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
 
   side-channel:
     name: Side channel attack tests
@@ -203,14 +253,14 @@ jobs:
       run: pip3 install coverage
     
     - name: Install Ninja on Ubuntu
-      run: sudo apt-get install libgtk-3-dev ninja-build 
+      run: sudo apt-get install llvm-9 libgtk-3-dev ninja-build 
 
     - name: Create build directory
       run: mkdir build
  
     - name: Run CMake in Debug
       if: matrix.mode == 'debug'
-      working-directory: build
+      working-directory: buildpavelkryukov
       run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
 
     - name: Run CMake in Release
@@ -231,7 +281,7 @@ jobs:
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
 
   make-all:
     name: Make all targets

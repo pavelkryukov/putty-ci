@@ -157,8 +157,9 @@ void help(void)
            "default 3)\n"
            "            kdf           key derivation function (argon2id, "
            "argon2i, argon2d)\n"
-           "            memory        Kb of memory to use in password hash "
-           "(default 8192)\n"
+           "            memory        Kbyte of memory to use in passphrase "
+           "hash\n"
+           "                             (default 8192)\n"
            "            time          approx milliseconds to hash for "
            "(default 100)\n"
            "            passes        number of hash passes to run "
@@ -447,7 +448,7 @@ int main(int argc, char **argv)
                                     params.argon2_milliseconds = n;
                                 } else if (!strcmp(val, "passes")) {
                                     params.argon2_passes_auto = false;
-                                    params.argon2_milliseconds = n;
+                                    params.argon2_passes = n;
                                 } else if (!strcmp(val, "parallelism") ||
                                            !strcmp(val, "parallel")) {
                                     params.argon2_parallelism = n;
@@ -877,10 +878,10 @@ int main(int argc, char **argv)
         PrimeGenerationContext *pgc = primegen_new_context(primegen);
 
         if (keytype == DSA) {
-            struct dss_key *dsskey = snew(struct dss_key);
-            dsa_generate(dsskey, bits, pgc, &cmdgen_progress);
+            struct dsa_key *dsakey = snew(struct dsa_key);
+            dsa_generate(dsakey, bits, pgc, &cmdgen_progress);
             ssh2key = snew(ssh2_userkey);
-            ssh2key->key = &dsskey->sshk;
+            ssh2key->key = &dsakey->sshk;
             ssh1key = NULL;
         } else if (keytype == ECDSA) {
             struct ecdsa_key *ek = snew(struct ecdsa_key);
