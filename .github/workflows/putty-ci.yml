@@ -206,12 +206,7 @@ jobs:
       run: mkdir dynamorio-build build
       
     - name: Clone DynamoRio
-      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch release_7.91.18342
-  
-    - name: Rollback CMake
-      uses: jwlawson/actions-setup-cmake@v1.4
-      with:
-        cmake-version: 3.17.x
+      run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch release_8.0.18611-2
   
     - name: Configure DynamoRio
       working-directory: dynamorio-build
@@ -304,10 +299,6 @@ jobs:
     - name: Install GTK
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt-get install libgtk-3-dev halibut ninja-build
-    
-    - name: Build docs
-      working-directory: doc
-      run: make man
 
     - name: Create build directory
       run: mkdir build
