@@ -112,8 +112,7 @@ jobs:
       run: ninja testcrypt
     
     - name: Run Cryptsuite
-      working-directory: test
-      run: python3 -m coverage run ./cryptsuite.py
+      run: python3 -m coverage run ./test/cryptsuite.py
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
@@ -165,8 +164,7 @@ jobs:
       run: ninja testcrypt
     
     - name: Run Cryptsuite
-      working-directory: test
-      run: python3 -m coverage run ./cryptsuite.py
+      run: python3 -m coverage run ./test/cryptsuite.py
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
@@ -213,17 +211,15 @@ jobs:
       with:
         cmake-version: 3.17.x
   
-    - name: Configure DynamoRio
+    - name: Build DynamoRio
       working-directory: dynamorio-build
-      run: cmake -G Ninja ../dynamorio # -DCMAKE_BUILD_TYPE=Debug
+      run: |
+        cmake -G Ninja ../dynamorio # -DCMAKE_BUILD_TYPE=Debug
+        ninja drrun libdrreg.so libdrsyms.so libdrutil.so libdrwrap.so
 
     - name: Configure Putty
       working-directory: build
       run: cmake -G Ninja .. # -DCMAKE_BUILD_TYPE=Debug
-  
-    - name: Build DynamoRio
-      working-directory: dynamorio-build
-      run: ninja drrun libdrreg.so libdrsyms.so libdrutil.so libdrwrap.so
     
     - name: Build SC plugin
       working-directory: test/sclog
