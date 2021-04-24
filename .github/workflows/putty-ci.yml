@@ -123,6 +123,14 @@ jobs:
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
       run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -n "Cryprography tests ${{ matrix.compiler }} ${{ matrix.os }}"
 
+    - name: Run Cryptsuite with coverage
+      working-directory: test
+      run: python3 -m coverage run ./cryptsuite.py
+      
+    - name: Upload Python coverage
+      if: matrix.mode == 'debug'
+      run: bash <(curl -s https://codecov.io/bash) -X gcov -n "Cryprography Python ${{ matrix.compiler }} ${{ matrix.os }}"
+
   sde:
     name: Cryptography tests with SDE
     strategy:
@@ -135,9 +143,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Install Coverage
-      run: pip3 install coverage
 
     - name: Install Ninja on Ubuntu
       run: sudo apt-get install llvm-9 ninja-build
