@@ -113,7 +113,7 @@ jobs:
     
     - name: Run Cryptsuite
       working-directory: test
-      run: python3 ./test/cryptsuite.py
+      run: python3 ./cryptsuite.py
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
@@ -166,7 +166,7 @@ jobs:
     
     - name: Run Cryptsuite
       working-directory: test
-      run: python3 ./test/cryptsuite.py
+      run: python3 ./cryptsuite.py
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
