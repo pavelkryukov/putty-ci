@@ -60,11 +60,11 @@ jobs:
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
-      run: bash <(curl -s https://codecov.io/bash) -x "gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "gcov" -n "Unit tests ${{ matrix.compiler }} ${{ matrix.os }}"
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -n "Unit tests ${{ matrix.compiler }} ${{ matrix.os }}"
  
   cryptography:
     name: Cryptography Tests
@@ -117,11 +117,11 @@ jobs:
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
-      run: bash <(curl -s https://codecov.io/bash) -x "gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "gcov" -n "Cryptography tests ${{ matrix.compiler }} ${{ matrix.os }}"
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -n "Cryprography tests ${{ matrix.compiler }} ${{ matrix.os }}"
 
   sde:
     name: Cryptography tests with SDE
@@ -170,11 +170,11 @@ jobs:
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
-      run: bash <(curl -s https://codecov.io/bash) -x "gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "gcov" -n "SDE tests ${{ matrix.compiler }} ${{ matrix.os }}"
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -n "SDE tests ${{ matrix.compiler }} ${{ matrix.os }}"
 
   side-channel:
     name: Side channel attack tests
@@ -277,11 +277,11 @@ jobs:
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
-      run: bash <(curl -s https://codecov.io/bash) -x "gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "gcov" -n "Pageant tests ${{ matrix.compiler }} ${{ matrix.os }}"
       
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -n "Pageant tests ${{ matrix.compiler }} ${{ matrix.os }}"
 
   make-all:
     name: Make all targets
