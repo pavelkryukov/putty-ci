@@ -112,7 +112,8 @@ jobs:
       run: ninja testcrypt
     
     - name: Run Cryptsuite
-      run: python3 -m coverage run ./test/cryptsuite.py
+      working-directory: test
+      run: python3 ./test/cryptsuite.py
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
@@ -164,7 +165,8 @@ jobs:
       run: ninja testcrypt
     
     - name: Run Cryptsuite
-      run: python3 -m coverage run ./test/cryptsuite.py
+      working-directory: test
+      run: python3 ./test/cryptsuite.py
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
