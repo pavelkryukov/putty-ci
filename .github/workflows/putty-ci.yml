@@ -31,26 +31,19 @@ jobs:
     - name: Install Ninja on Ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt-get install ninja-build llvm-9 
-
-    - name: Create build directory
-      run: mkdir build
  
     - name: Run CMake in Debug
       if: matrix.mode == 'debug'
-      working-directory: build
-      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+      run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
 
     - name: Run CMake in Release
       if: matrix.mode == 'release'
-      working-directory: build
-      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+      run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }}
 
     - name: Make
-      working-directory: build
       run: ninja cgtest testsc test_host_strfoo test_tree234 test_wildcard
 
     - name: Run unit tests
-      working-directory: build
       run: |
         ./cgtest
         ./testsc || true
@@ -78,7 +71,7 @@ jobs:
             compiler: clang
     runs-on: ${{ matrix.os }}
     env:
-      PUTTY_TESTCRYPT: ${{ github.workspace }}/build/testcrypt
+      PUTTY_TESTCRYPT: ${{ github.workspace }}/testcrypt
 
     steps:
     - uses: actions/checkout@v2
@@ -94,21 +87,15 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt-get install ninja-build llvm-9 
 
-    - name: Create build directory
-      run: mkdir build
- 
     - name: Run CMake in Debug
       if: matrix.mode == 'debug'
-      working-directory: build
-      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+      run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
 
     - name: Run CMake in Release
       if: matrix.mode == 'release'
-      working-directory: build
-      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+      run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }}
 
     - name: Make
-      working-directory: build
       run: ninja testcrypt
     
     - name: Run Cryptsuite
@@ -139,7 +126,7 @@ jobs:
         mode: [release, debug]
     runs-on: ubuntu-latest
     env:
-      PUTTY_TESTCRYPT: $SDE_PATH/sde64 -- ${{ github.workspace }}/build/testcrypt
+      PUTTY_TESTCRYPT: $SDE_PATH/sde64 -- ${{ github.workspace }}/testcrypt
 
     steps:
     - uses: actions/checkout@v2
@@ -152,21 +139,15 @@ jobs:
       with:
         environmentVariableName: SDE_PATH
 
-    - name: Create build directory
-      run: mkdir build
- 
     - name: Run CMake in Debug
       if: matrix.mode == 'debug'
-      working-directory: build
-      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+      run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
 
     - name: Run CMake in Release
       if: matrix.mode == 'release'
-      working-directory: build
-      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+      run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }}
 
     - name: Make
-      working-directory: build
       run: ninja testcrypt
     
     - name: Run Cryptsuite
@@ -208,7 +189,7 @@ jobs:
       run: sudo apt-get install ninja-build
         
     - name: Create build directories
-      run: mkdir dynamorio-build build
+      run: mkdir dynamorio-build
       
     - name: Clone DynamoRio
       run: git clone https://github.com/DynamoRIO/dynamorio.git --depth=1 --branch release_7.91.18342
@@ -225,8 +206,7 @@ jobs:
         ninja drrun libdrreg.so libdrsyms.so libdrutil.so libdrwrap.so
 
     - name: Configure Putty
-      working-directory: build
-      run: cmake -G Ninja .. # -DCMAKE_BUILD_TYPE=Debug
+      run: cmake -G Ninja . # -DCMAKE_BUILD_TYPE=Debug
     
     - name: Build SC plugin
       working-directory: test/sclog
@@ -235,7 +215,6 @@ jobs:
         ninja
   
     - name: Generate, configure and build
-      working-directory: build
       run: ninja testsc
 
     - name: Run DynamoRio
@@ -257,22 +236,16 @@ jobs:
     
     - name: Install Ninja on Ubuntu
       run: sudo apt-get install llvm-9 libgtk-3-dev ninja-build 
-
-    - name: Create build directory
-      run: mkdir build
  
     - name: Run CMake in Debug
       if: matrix.mode == 'debug'
-      working-directory: build
-      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+      run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DPUTTY_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
 
     - name: Run CMake in Release
       if: matrix.mode == 'release'
-      working-directory: build
-      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+      run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }}
 
     - name: Make
-      working-directory: build
       run: ninja pageant
 
     - name: Run Pageant
