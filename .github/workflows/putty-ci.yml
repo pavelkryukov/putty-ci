@@ -218,7 +218,7 @@ jobs:
       run: ninja testsc
 
     - name: Run DynamoRio
-      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./build/testsc -O /tmp
+      run: ${{ github.workspace }}/dynamorio-build/bin64/drrun -c test/sclog/libsclog.so -- ./testsc -O /tmp
 
   pageant:
     name: Pageant
@@ -249,7 +249,7 @@ jobs:
       run: ninja pageant
 
     - name: Run Pageant
-      run: ./build/pageant --exec ./test/agenttest.py
+      run: ./pageant --exec ./test/agenttest.py
 
     - name: Upload GNU coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'gcc'
