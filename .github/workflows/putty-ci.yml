@@ -307,19 +307,10 @@ jobs:
     - name: Install GTK
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt-get install libgtk-3-dev halibut ninja-build
-    
-    - name: Build docs
-      working-directory: doc
-      run: make man
-
-    - name: Create build directory
-      run: mkdir build
  
     - name: Run CMake
-      working-directory: build
-      run: cmake -G Ninja .. -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+      run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }}
   
     - name: Make
-      working-directory: build
       run: ninja all
 
