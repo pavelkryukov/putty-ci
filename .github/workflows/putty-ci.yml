@@ -235,7 +235,9 @@ jobs:
       run: pip3 install coverage
 
     - name: Install Ninja on Ubuntu
-      run: sudo apt-get install llvm-9 libgtk-3-dev ninja-build
+      run: |
+          sudo apt-get update
+          sudo apt-get install llvm-9 libgtk-3-dev ninja-build
 
     - name: Run CMake in Debug
       if: matrix.mode == 'debug'
@@ -279,7 +281,9 @@ jobs:
 
     - name: Install GTK
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install libgtk-3-dev halibut ninja-build
+      run: |
+          sudo apt-get update
+          sudo apt-get install libgtk-3-dev halibut ninja-build
 
     - name: Run CMake
       run: cmake -G Ninja . -DCMAKE_C_COMPILER=${{ matrix.compiler }}
