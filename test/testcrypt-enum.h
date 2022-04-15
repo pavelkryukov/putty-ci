@@ -79,6 +79,14 @@ BEGIN_ENUM_TYPE(cipheralg)
     ENUM_VALUE("aes128_ctr_ni", &ssh_aes128_sdctr_ni)
     ENUM_VALUE("aes128_cbc_ni", &ssh_aes128_cbc_ni)
 #endif
+#if HAVE_AES_VECTOR
+    ENUM_VALUE("aes256_ctr_vector", &ssh_aes256_sdctr_vector)
+    ENUM_VALUE("aes256_cbc_vector", &ssh_aes256_cbc_vector)
+    ENUM_VALUE("aes192_ctr_vector", &ssh_aes192_sdctr_vector)
+    ENUM_VALUE("aes192_cbc_vector", &ssh_aes192_cbc_vector)
+    ENUM_VALUE("aes128_ctr_vector", &ssh_aes128_sdctr_vector)
+    ENUM_VALUE("aes128_cbc_vector", &ssh_aes128_cbc_vector)
+#endif
 #if HAVE_NEON_CRYPTO
     ENUM_VALUE("aes256_ctr_neon", &ssh_aes256_sdctr_neon)
     ENUM_VALUE("aes256_cbc_neon", &ssh_aes256_cbc_neon)

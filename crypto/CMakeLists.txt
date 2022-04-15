@@ -96,6 +96,16 @@ if(HAVE_WMMINTRIN_H)
       int main(void) { r = _mm_aesenc_si128(a, b); }"
     ADD_SOURCES_IF_SUCCESSFUL aes-ni aes-ni.c)
 
+  test_compile_with_flags(HAVE_AES_VECTOR
+    GNU_FLAGS -mavx512f -mavx512dq -mavx512bw -mvaes -msse4.1 -maes
+    TEST_SOURCE "
+      #include <wmmintrin.h>
+      #include <smmintrin.h>
+      #include <immintrin.h>
+      volatile __m512i r, a, b;
+      int main(void) { r = _mm512_aesenc_epi128(a, b); }"
+    ADD_SOURCES_IF_SUCCESSFUL aes-vector aes-vector.c)
+
   # shaintrin.h doesn't exist on all compilers; sometimes it's folded
   # into the other headers
   test_compile_with_flags(HAVE_SHAINTRIN_H
@@ -201,6 +211,7 @@ if(neon)
 endif()
 
 set(HAVE_AES_NI ${HAVE_AES_NI} PARENT_SCOPE)
+set(HAVE_AES_VECTOR ${HAVE_AES_VECTOR} PARENT_SCOPE)
 set(HAVE_SHA_NI ${HAVE_SHA_NI} PARENT_SCOPE)
 set(HAVE_SHAINTRIN_H ${HAVE_SHAINTRIN_H} PARENT_SCOPE)
 set(HAVE_NEON_CRYPTO ${HAVE_NEON_CRYPTO} PARENT_SCOPE)

@@ -1334,6 +1334,9 @@ strbuf *get_implementations_commasep(ptrlen alg)
 #if HAVE_AES_NI
         put_fmt(out, ",%.*s_ni", PTRLEN_PRINTF(alg));
 #endif
+#if HAVE_AES_VECTOR
+        put_fmt(out, ",%.*s_vector", PTRLEN_PRINTF(alg));
+#endif
 #if HAVE_NEON_CRYPTO
         put_fmt(out, ",%.*s_neon", PTRLEN_PRINTF(alg));
 #endif

@@ -259,6 +259,18 @@ VOLATILE_WRAPPED_DEFN(static, size_t, looplimit, (size_t x))
 #else
 #define CIPHERS_AES_NI(X, Y)
 #endif
+#if HAVE_AES_VECTOR
+#define CIPHERS_AES_VECTOR(X, Y) \
+    X(Y, ssh_aes256_sdctr_vector)               \
+    X(Y, ssh_aes256_cbc_vector)                 \
+    X(Y, ssh_aes192_sdctr_vector)               \
+    X(Y, ssh_aes192_cbc_vector)                 \
+    X(Y, ssh_aes128_sdctr_vector)               \
+    X(Y, ssh_aes128_cbc_vector)                 \
+    /* end of list */
+#else
+#define CIPHERS_AES_VECTOR(X, Y)
+#endif
 #if HAVE_NEON_CRYPTO
 #define CIPHERS_AES_NEON(X, Y) \
     X(Y, ssh_aes256_sdctr_neon)                   \
@@ -293,6 +305,7 @@ VOLATILE_WRAPPED_DEFN(static, size_t, looplimit, (size_t x))
     X(Y, ssh_aes128_sdctr_sw)                   \
     X(Y, ssh_aes128_cbc_sw)                     \
     CIPHERS_AES_NI(X, Y)                        \
+    CIPHERS_AES_VECTOR(X, Y)                    \
     CIPHERS_AES_NEON(X, Y)                      \
     X(Y, ssh2_chacha20_poly1305)                \
     /* end of list */

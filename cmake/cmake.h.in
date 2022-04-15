@@ -45,6 +45,7 @@
 #cmakedefine01 HAVE_PANGO_FONT_MAP_LIST_FAMILIES
 
 #cmakedefine01 HAVE_AES_NI
+#cmakedefine01 HAVE_AES_VECTOR
 #cmakedefine01 HAVE_SHA_NI
 #cmakedefine01 HAVE_SHAINTRIN_H
 #cmakedefine01 HAVE_NEON_CRYPTO

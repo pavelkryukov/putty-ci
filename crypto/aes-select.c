@@ -33,6 +33,12 @@ static ssh_cipher *aes_select(const ssh_cipheralg *alg)
 #define IF_NI(...)
 #endif
 
+#if HAVE_AES_VECTOR
+#define IF_VECTOR(...) __VA_ARGS__
+#else
+#define IF_VECTOR(...)
+#endif
+
 #if HAVE_NEON_CRYPTO
 #define IF_NEON(...) __VA_ARGS__
 #else
@@ -43,6 +49,7 @@ static ssh_cipher *aes_select(const ssh_cipheralg *alg)
     static const ssh_cipheralg *                                        \
     ssh_aes ## bits ## _ ## mode_c ## _impls[] = {                      \
         IF_NI(&ssh_aes ## bits ## _ ## mode_c ## _ni,)                  \
+        IF_VECTOR(&ssh_aes ## bits ## _ ## mode_c ## _vector,)          \
         IF_NEON(&ssh_aes ## bits ## _ ## mode_c ## _neon,)              \
         &ssh_aes ## bits ## _ ## mode_c ## _sw,                         \
         NULL,                                                           \
