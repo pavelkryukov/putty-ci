@@ -203,7 +203,7 @@ jobs:
       working-directory: dynamorio-build
       run: |
         CFLAGS=-Wno-array-bounds cmake -G Ninja ../dynamorio # -DCMAKE_BUILD_TYPE=Debug
-        ninja drrun libdrreg.so libdrsyms.so libdrutil.so libdrwrap.so
+        CFLAGS=-Wno-array-bounds ninja drrun libdrreg.so libdrsyms.so libdrutil.so libdrwrap.so
 
     - name: Configure Putty
       run: cmake -G Ninja . # -DCMAKE_BUILD_TYPE=Debug
