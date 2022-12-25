@@ -163,10 +163,11 @@ jobs:
       run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-11 gcov" -n "SDE tests ${{ matrix.compiler }} ${{ matrix.os }}"
 
   side-channel:
+    if: ${{ false }}
     name: Side channel attack tests
     strategy:
       matrix:
-        compiler: [gcc]
+        compiler: [gcc, clang]
         mode: [release]
     runs-on: ubuntu-latest
 
