@@ -57,7 +57,7 @@ jobs:
 
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -n "Unit tests ${{ matrix.compiler }} ${{ matrix.os }}"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-10 gcov" -n "Unit tests ${{ matrix.compiler }} ${{ matrix.os }}"
 
   cryptography:
     name: Cryptography Tests
@@ -85,7 +85,7 @@ jobs:
 
     - name: Install Ninja on Ubuntu
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install ninja-build llvm-9
+      run: sudo apt-get install ninja-build llvm-10
 
     - name: Run CMake in Debug
       if: matrix.mode == 'debug'
@@ -108,7 +108,7 @@ jobs:
 
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -n "Cryprography tests ${{ matrix.compiler }} ${{ matrix.os }}"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-10 gcov" -n "Cryprography tests ${{ matrix.compiler }} ${{ matrix.os }}"
 
     - name: Run Cryptsuite with coverage
       working-directory: test
@@ -132,7 +132,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install Ninja on Ubuntu
-      run: sudo apt-get install llvm-9 ninja-build
+      run: sudo apt-get install llvm-10 ninja-build
 
     - name: Install SDE
       uses: petarpetrovt/setup-sde@v1.2
@@ -160,7 +160,7 @@ jobs:
 
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -n "SDE tests ${{ matrix.compiler }} ${{ matrix.os }}"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-10 gcov" -n "SDE tests ${{ matrix.compiler }} ${{ matrix.os }}"
 
   side-channel:
     name: Side channel attack tests
@@ -237,7 +237,7 @@ jobs:
     - name: Install Ninja on Ubuntu
       run: |
           sudo apt-get update
-          sudo apt-get install llvm-9 libgtk-3-dev ninja-build
+          sudo apt-get install llvm-10 libgtk-3-dev ninja-build
 
     - name: Run CMake in Debug
       if: matrix.mode == 'debug'
@@ -259,7 +259,7 @@ jobs:
 
     - name: Upload LLVM coverage
       if: matrix.mode == 'debug' && matrix.compiler == 'clang'
-      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-9 gcov" -n "Pageant tests ${{ matrix.compiler }} ${{ matrix.os }}"
+      run: bash <(curl -s https://codecov.io/bash) -x "llvm-cov-10 gcov" -n "Pageant tests ${{ matrix.compiler }} ${{ matrix.os }}"
 
   make-all:
     name: Make all targets
