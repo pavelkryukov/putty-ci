@@ -30,7 +30,7 @@ jobs:
 
     - name: Install Ninja on Ubuntu
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install ninja-build llvm-9
+      run: sudo apt-get install ninja-build llvm-10
 
     - name: Run CMake in Debug
       if: matrix.mode == 'debug'
